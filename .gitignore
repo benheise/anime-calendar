@@ -1,0 +1,42 @@
+# --- Dependencies ---------------------------------------------------------
+node_modules/
+
+# --- Workbook backups and Office lock files -------------------------------
+# A copy is taken before each sweep (e.g. anime-calendar-data.pre-nov06.xlsx);
+# git history is the real backup, so the copies stay local.
+*.pre-*.xlsx
+*.bak.xlsx
+*.backup.xlsx
+~$*
+
+# --- One-off sweep scripts and scratch verification -----------------------
+# Each sweep's edit script (sweep_nov06.py, ...) runs once against the
+# workbook and is then dead; the workbook itself records the result.
+sweep_*.py
+# Ad-hoc jsdom probes (vsweep.js, vdst.js, vod.js, ...). verify.js is the
+# maintained check and stays tracked.
+/v*.js
+!/verify.js
+scratch/
+tmp/
+
+# --- Legacy and duplicate outputs -----------------------------------------
+# Old filename for the built page, the pre-August spreadsheet, and the
+# one-time palette comparison image.
+summer-2026-anime.html
+Summer_2026_Anime_Releases.xlsx
+*-before-after.png
+
+# --- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- OS / editor ----------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summer 2026 Anime — Premieres &amp; Where to Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#15101f; --bg2:#1b1530; --card:#211934; --card-h:#2a2142;
+  --line:rgba(255,255,255,.085); --line2:rgba(255,255,255,.14);
+  --text:#f3eeff; --muted:#aaa0c8; --faint:#766c97;
+  --coral:#ff7a59; --amber:#ffb454; --aqua:#57e0c8;
+  /* Platform identity colours. Validated with the dataviz palette checker against the
+     card surface #211934. Three of these used to be blues (HIDIVE cyan, Prime blue,
+     Disney+ light blue) and the cluster was unreadable: worst all-pairs normal-vision
+     ΔE was 9.3, well under the 15 floor. HIDIVE moved to magenta and Disney+ to teal,
+     which lifts the worst pair to 15.0 and takes HIDIVE↔Prime from 17.1 to 27.7.
+     Crunchyroll, Netflix, Hulu and Prime keep their brand hues.
+     Deliberate deviations: --tba is intentionally near-neutral (it means "platform
+     unknown", so it should read as absence, not identity) and so fails the chroma
+     floor; cr/hulu/cont sit above the strict dark lightness band because the brighter
+     steps measurably separate better and all eight still clear 3:1 contrast. */
+  --cr:#f47521; --hidive:#c94f9e; --netflix:#e50914; --hulu:#1ce783; --prime:#3b87f7; --disney:#199e70; --tba:#9aa0b4; --cont:#ffc24b;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; background:#15101f}
+body{
+  margin:0; min-height:100vh; background:#15101f; color:var(--text);
+  font-family:"Inter",system-ui,sans-serif; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+/* .page paints the dark surface as a real element box. Some embedded/preview
+   viewers inject their own background onto <body>, which would otherwise leave
+   the theme's translucent controls (nav arrows, chips, legend) invisible on
+   white. An ordinary element background cannot be overridden that way. */
+.page{position:relative; min-height:100vh; background:#15101f !important; color:var(--text)}
+.page::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(900px 500px at 88% -8%, rgba(255,122,89,.16), transparent 60%),
+    radial-gradient(800px 520px at 6% 4%, rgba(87,224,200,.10), transparent 55%);
+}
+.wrap{position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:0 20px}
+a{color:inherit}
+
+/* Header */
+.top{position:sticky; top:0; z-index:30; background:rgba(21,16,31,.82); backdrop-filter:blur(12px); border-bottom:1px solid var(--line)}
+.top .wrap{display:flex; align-items:center; gap:16px; height:62px}
+.brand{display:flex; align-items:center; gap:10px; font-family:"Space Grotesk"; font-weight:700; font-size:15px; letter-spacing:.2px; white-space:nowrap}
+.brand .dot{width:12px; height:12px; border-radius:3px; background:linear-gradient(135deg,var(--coral),var(--amber)); transform:rotate(45deg); box-shadow:0 0 16px rgba(255,122,89,.6)}
+.search{margin-left:auto; position:relative; flex:0 1 320px}
+.search input{
+  width:100%; padding:9px 14px 9px 36px; border-radius:10px; border:1px solid var(--line2);
+  background:rgba(255,255,255,.04); color:var(--text); font-family:inherit; font-size:13.5px; outline:none;
+}
+.search input::placeholder{color:var(--faint)}
+.search input:focus{border-color:var(--coral); box-shadow:0 0 0 3px rgba(255,122,89,.18)}
+.search svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; stroke:var(--faint)}
+
+/* Hero */
+.hero{padding:54px 0 30px}
+.eyebrow{font-family:"Space Mono"; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:var(--aqua); margin:0 0 14px}
+.hero h1{
+  font-family:"Space Grotesk"; font-weight:700; margin:0; line-height:.96;
+  font-size:clamp(46px,9vw,104px); letter-spacing:-2px;
+  background:linear-gradient(180deg,#fff 30%,#e7ddff 75%); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero h1 .yr{
+  background:linear-gradient(105deg,var(--coral),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero p{max-width:620px; color:var(--muted); font-size:16px; margin:20px 0 0}
+.stats{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px}
+.stat{display:flex; align-items:baseline; gap:8px; padding:9px 15px; border:1px solid var(--line2); border-radius:999px; background:var(--card)}
+.stat b{font-family:"Space Grotesk"; font-size:18px}
+.stat span{font-size:12.5px; color:var(--muted)}
+
+/* Tabs */
+.tabs-wrap{position:sticky; top:62px; z-index:20; background:rgba(21,16,31,.9); backdrop-filter:blur(12px); border-bottom:1px solid var(--line); margin-top:18px}
+.tabs{display:flex; gap:6px; overflow-x:auto; padding:12px 0; scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto; display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  padding:8px 15px; border-radius:999px; border:1px solid var(--line2); background:transparent;
+  color:var(--muted); font-family:inherit; font-size:13.5px; font-weight:500; white-space:nowrap; transition:.15s;
+}
+.tab:hover{color:var(--text); border-color:var(--line2); background:rgba(255,255,255,.04)}
+.tab .ct{font-family:"Space Mono"; font-size:11px; color:var(--faint); background:rgba(255,255,255,.06); padding:1px 7px; border-radius:999px}
+.tab[aria-selected="true"]{background:var(--text); color:#191225; border-color:var(--text); font-weight:600}
+.tab[aria-selected="true"] .ct{color:#191225; background:rgba(0,0,0,.12)}
+.tab .pdot{width:8px; height:8px; border-radius:50%}
+.tab:focus-visible{outline:2px solid var(--coral); outline-offset:2px}
+
+/* Grid */
+.meta-row{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:22px 0 8px; flex-wrap:wrap}
+.meta-row .count{font-size:13px; color:var(--faint); font-family:"Space Mono"}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; padding:6px 0 10px}
+.card{
+  position:relative; border:1px solid var(--line); border-radius:var(--radius); background:var(--card);
+  padding:18px 18px 16px; display:flex; flex-direction:column; gap:11px; overflow:hidden; transition:.18s;
+}
+.card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--pc,var(--tba))}
+.card:hover{background:var(--card-h); transform:translateY(-3px); border-color:var(--line2); box-shadow:0 14px 34px rgba(0,0,0,.32)}
+.chips{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.plat{font-family:"Space Mono"; font-size:11px; font-weight:700; letter-spacing:.4px; padding:3px 9px; border-radius:6px; color:#fff}
+.when{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted)}
+.when b{color:var(--text); font-weight:600}
+.time{margin-left:auto; font-family:"Space Mono"; font-size:11.5px; font-weight:700; color:var(--aqua); border:1px solid rgba(87,224,200,.28); background:rgba(87,224,200,.07); padding:3px 9px; border-radius:6px; white-space:nowrap}
+.time.tba{color:var(--faint); border-color:var(--line2); background:transparent}
+.card h3{font-family:"Space Grotesk"; font-weight:600; font-size:18px; line-height:1.22; margin:2px 0 0; letter-spacing:-.2px}
+.card h3 a{text-decoration:none; background-image:linear-gradient(var(--coral),var(--coral)); background-size:0% 1.5px; background-position:0 100%; background-repeat:no-repeat; transition:background-size .2s}
+.card h3 a:hover{background-size:100% 1.5px}
+.card h3 a[href]::after{content:"↗"; font-family:"Inter"; font-size:12px; color:var(--faint); margin-left:6px; vertical-align:1px}
+.tagline{font-size:12px; color:var(--faint); display:flex; flex-wrap:wrap; gap:6px 10px}
+.tagline .sep{color:rgba(255,255,255,.18)}
+.syn{font-size:13.5px; color:#d9d2ef; margin:2px 0 0}
+.syn.clamp{display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden}
+.more{align-self:flex-start; margin-top:2px; background:none; border:none; color:var(--coral); font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; padding:0}
+.more:hover{text-decoration:underline}
+.badge{font-size:10.5px; font-weight:600; letter-spacing:.3px; text-transform:uppercase; color:var(--amber); border:1px solid rgba(255,180,84,.3); padding:1px 7px; border-radius:5px}
+
+/* View toggle */
+.viewtoggle{display:inline-flex; background:rgba(255,255,255,.04); border:1px solid var(--line2); border-radius:11px; padding:3px}
+.vt{appearance:none; border:none; background:none; color:var(--muted); font-family:inherit; font-size:13px; font-weight:500; padding:7px 13px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:.15s; white-space:nowrap}
+.vt:hover{color:var(--text)}
+.vt.on{background:var(--text); color:#191225; font-weight:600}
+.vt:focus-visible{outline:2px solid var(--coral); outline-offset:2px}
+.vt svg{width:15px; height:15px; stroke-width:2}
+.hide{display:none !important}
+
+/* Legend */
+.legend{display:flex; flex-wrap:wrap; gap:8px 16px; padding:4px 2px 16px}
+/* Layered fallback: each major block paints its own dark surface, so the theme
+   survives hosts that inject their own background onto ancestor elements. */
+.hero,.tabs-wrap,main.wrap,footer{background:#15101f}
+.tabs-wrap{background:#1a1428}
+.data-error{position:relative; z-index:60; margin:0; padding:12px 18px; background:#5b1a1a; color:#ffe9e9; font-size:12.5px; line-height:1.5; border-bottom:2px solid #ff6b6b}
+.data-error b{color:#fff}
+.sweep-banner{display:flex; align-items:flex-start; gap:10px; margin:0 0 16px; padding:12px 14px; border-radius:10px; background:#2e2413; border:1px solid rgba(255,180,84,.55)}
+.sweep-banner .icon{font-size:16px; line-height:1.3; flex:0 0 auto}
+.sweep-banner .txt{font-size:12.5px; line-height:1.45; color:#f7ecd8}
+.sweep-banner b{color:var(--amber)}
+.lg{display:inline-flex; align-items:center; gap:7px; font-size:12px; color:#c6bce2}
+
+/* Weekly calendar */
+.cal{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:10px; padding:4px 0 10px; align-items:start}
+.day{border:1px solid var(--line); border-radius:12px; background:var(--card); display:flex; flex-direction:column; overflow:hidden}
+.day.today{border-color:rgba(255,122,89,.45); box-shadow:0 0 0 1px rgba(255,122,89,.22)}
+.day-h{display:flex; align-items:center; justify-content:space-between; gap:6px; padding:11px 12px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.02)}
+.day.today .day-h{background:linear-gradient(180deg,rgba(255,122,89,.16),rgba(255,122,89,.03))}
+.dname{font-family:"Space Grotesk"; font-weight:600; font-size:13.5px; letter-spacing:.2px}
+.dh-l{display:flex; align-items:baseline; gap:7px; min-width:0; flex-wrap:wrap}
+.ddate{font-family:"Space Mono"; font-size:11px; color:var(--faint)}
+.day.today .ddate{color:var(--coral)}
+.dtoday{font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--coral); border:1px solid rgba(255,122,89,.4); border-radius:4px; padding:0 5px; flex:0 0 auto}
+.dcount{font-family:"Space Mono"; font-size:11px; color:var(--faint); background:rgba(255,255,255,.05); padding:1px 7px; border-radius:999px; flex:0 0 auto}
+.day-list{display:flex; flex-direction:column; padding:5px}
+.slot{display:flex; flex-direction:column; gap:2px; padding:8px 9px; border-radius:8px; transition:background .12s}
+.slot + .slot{border-top:1px solid var(--line)}
+.slot:hover{background:var(--card-h)}
+.slot-time{font-family:"Space Mono"; font-size:10.5px; font-weight:700; color:var(--aqua); white-space:nowrap; flex:0 0 auto; min-width:52px}
+.slot-time.tba{color:var(--faint)}
+.slot-body{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:3px}
+.slot-title{font-size:12.5px; line-height:1.32; color:#e3ddf3; overflow-wrap:break-word}
+.slot-plat{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:6px; vertical-align:1px}
+.slot a{text-decoration:none; color:#e9e4f7}
+.slot a:hover{color:#fff; text-decoration:underline}
+.slot-tags{display:flex; flex-wrap:wrap; gap:4px}
+.slot-tag{font-size:9px; text-transform:uppercase; letter-spacing:.4px; color:var(--faint); border:1px solid var(--line2); padding:1px 5px; border-radius:4px; white-space:nowrap}
+.slot-tag.fin{color:var(--amber); border-color:rgba(255,180,84,.45)}
+.slot-tag.prem{color:var(--aqua); border-color:rgba(87,224,200,.45)}
+.runline{font-family:"Space Mono"; font-size:11px; color:var(--faint); margin-top:-2px}
+.day-empty{padding:16px 10px; color:var(--faint); font-size:12px; text-align:center}
+.noslot{border:1px dashed var(--line2); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--muted); margin-bottom:10px}
+.noslot b{color:var(--text); font-weight:600}
+
+/* Week navigation */
+.weeknav{display:flex; align-items:center; gap:10px; padding:4px 0 16px; flex-wrap:wrap}
+.wn-arrow{appearance:none; width:40px; height:40px; flex:0 0 auto; border:1px solid rgba(255,255,255,.28); background:var(--card-h); color:var(--text); border-radius:10px; font-size:20px; line-height:1; cursor:pointer; transition:.15s}
+.wn-arrow:hover:not(:disabled){border-color:var(--coral); color:var(--coral)}
+.wn-arrow:disabled{opacity:.3; cursor:not-allowed}
+.wn-arrow:focus-visible,.wn-today:focus-visible{outline:2px solid var(--coral); outline-offset:2px}
+.wn-mid{flex:1 1 auto; min-width:150px; text-align:center; display:flex; flex-direction:column; gap:1px}
+.wn-mid b{font-family:"Space Grotesk"; font-size:17px; letter-spacing:.2px}
+.wn-mid span{font-family:"Space Mono"; font-size:11.5px; color:var(--muted)}
+.wn-today{appearance:none; flex:0 0 auto; border:1px solid rgba(255,255,255,.28); background:var(--card-h); color:var(--text); font-family:inherit; font-size:12.5px; font-weight:500; padding:9px 14px; border-radius:10px; cursor:pointer; transition:.15s}
+.wn-today:hover:not(:disabled){color:var(--text); border-color:var(--coral)}
+.wn-today:disabled{opacity:.4; cursor:default}
+
+@media (max-width:1040px){
+  .cal{grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:minmax(218px,1fr); overflow-x:auto; scroll-snap-type:x proximity; padding-bottom:14px}
+  .day{scroll-snap-align:start}
+  .slot{flex-direction:row; gap:9px; align-items:flex-start; padding:8px}
+  .slot-time{padding-top:1px}
+}
+@media (max-width:620px){
+  .cal{display:flex; flex-direction:column; overflow:visible}
+}
+
+.empty{padding:60px 0; text-align:center; color:var(--faint); font-size:14px; display:none}
+
+/* Footer */
+footer{margin-top:40px; border-top:1px solid var(--line); padding:30px 0 60px; color:var(--muted); font-size:13px}
+footer h4{font-family:"Space Grotesk"; color:var(--text); font-size:14px; margin:0 0 10px; letter-spacing:.2px}
+footer p{margin:0 0 10px; max-width:760px}
+footer a{color:var(--aqua); text-decoration:none}
+footer a:hover{text-decoration:underline}
+.src{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 16px}
+.src span{font-size:12px; color:var(--faint); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+.fineprint{color:var(--faint); font-size:12px; margin-top:14px}
+
+@media (max-width:560px){
+  .hero{padding:38px 0 22px}
+  .grid{grid-template-columns:1fr}
+  .search{flex-basis:170px}
+  .brand span.full{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important; scroll-behavior:auto !important}}
+</style>
+</head>
+<body>
+<div class="page" style="background:#15101f;color:#f3eeff;min-height:100vh">
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span><span class="full">Summer 2026 Anime Guide</span></div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="Search titles, studios…" aria-label="Search releases" autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Anime premiere calendar · July–December 2026</p>
+    <h1>Summer<br><span class="yr">2026</span></h1>
+    <p>Every Summer 2026 premiere and returning season — now extended through the Fall lineup — mapped to where it streams in North America, with weekday and air time in US&nbsp;Eastern. Tap a platform to filter, flip to the weekly schedule, or click any title to open its page.</p>
+    <div class="stats">
+      <div class="stat"><b id="s-titles"><!--<<COUNT>>--></b><span>titles &amp; continuing seasons</span></div>
+      <div class="stat"><b id="s-plats">6</b><span>streaming platforms</span></div>
+      <div class="stat"><b>Jul–Dec</b><span>summer + fall premieres</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="tabs-wrap">
+  <div class="wrap"><div class="tabs" id="tabs" role="tablist" aria-label="Filter by platform"><!--<<TABS>>--></div></div>
+</div>
+
+<main class="wrap">
+  <div class="meta-row">
+    <div class="count" id="count"></div>
+    <div class="viewtoggle" role="group" aria-label="Choose view">
+      <button id="view-browse" class="vt on" type="button" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Cards
+      </button>
+      <button id="view-weekly" class="vt" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Weekly schedule
+      </button>
+    </div>
+  </div>
+  <div id="weeknav" class="weeknav hide">
+    <button class="wn-arrow" id="wk-prev" type="button" aria-label="Previous week">‹</button>
+    <div class="wn-mid"><b id="wk-range">—</b><span id="wk-count"></span></div>
+    <button class="wn-arrow" id="wk-next" type="button" aria-label="Next week">›</button>
+    <button class="wn-today" id="wk-today" type="button">This week</button>
+  </div>
+  <div id="legend" class="legend hide"></div>
+  <div id="sweepBanner" class="sweep-banner hide"></div>
+  <div class="grid" id="grid"><!--<<CARDS>>--></div>
+  <div class="cal hide" id="cal"></div>
+  <div class="empty" id="empty">No titles match that search on this platform.</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <h4>How to read this</h4>
+    <p>Dates and times are <b>North American streaming release times</b> in US Eastern — when the subtitled episode actually goes live on the platform, which typically runs 30–90 minutes after the Japanese TV broadcast. They were verified against AnimeSchedule.net's tracked releases during the premiere week (Jul 6–12, 2026); odd-looking minutes like “9:01” or “7:31” are that tracker's convention for “immediately after broadcast.” Shows with no NA stream tracked yet show the Japanese broadcast time converted to Eastern instead. <b>“TBA”</b> means a precise time (or, for a few shows, a platform) hasn’t been published for North America; titles tagged <b>TBA</b> as a platform are announced Fall 2026 titles whose North American service hasn’t been confirmed yet. Currently airing shows with no stream on the covered platforms are not listed. Schedules shift often (delays, double-episodes); confirm on the platform before a premiere. Coverage is the Japanese seasonal slate plus Crunchyroll's announced international pickups as they're confirmed for North America — donghua (<b>Crowned in a Hundred Days</b>, twice weekly; <b>Full-Time Magister S7</b>, Tuesday nights; the <b>Lord of Mysteries</b> specials, June; <b>Link Click Season 3</b>, August) and French animation (<b>Dreamland</b>, October).</p>
+    <p>The calendar tracks the <b>release schedule</b>, not the catalog: a completed season stays in the Cards view marked “complete” — and remains fully watchable on its platform — but leaves the weekly grid after its finale. The weekly schedule models each show's <b>run</b> — a title appears from its premiere through its finale, then drops off the calendar. Finale dates come from episode counts: where a studio has announced one, the <b>confirmed</b> count is used (shown as e.g. “12 eps”); otherwise a standard single-cour estimate of ~12 episodes is assumed and marked <b>“est.”</b>, since most Summer 2026 titles haven't published a length this early. The calendar runs from the season's first premiere through the end of 2026; most shows finish inside that window (two-cour titles like The Exiled Heavy Knight, at 26 episodes, run to late December), while a few that premiere in late fall continue into early 2027 beyond the year-end edge.</p>
+    <p><b>Fall 2026:</b> the season is included as premiere dates get confirmed. As of early July only a handful of Fall shows have locked dates (those appear on the grid); many more are announced but unscheduled and are listed beneath the calendar as “premiere date not yet scheduled” — they'll slot into place as studios set dates. <b>Winter time is handled automatically:</b> US daylight saving ends November 1, and because these releases are anchored to Japan's clock (which has no DST), every slot lands one hour <i>earlier</i> on the US clock from that date. The weekly schedule shows the adjusted EST time for any date on or after Nov 1 and labels those weeks; browse cards show each show's premiere-date (EDT) time.</p>
+    <h4>Sources</h4>
+    <div class="src">
+      <span>Crunchyroll Summer 2026 lineup</span><span>HIDIVE Summer 2026 simulcasts</span><span>Netflix / Tudum</span><span>LiveChart.me (episode counts)</span><span>AnimeSchedule.net</span><span>bilibili (donghua)</span><span>Anime News Network</span><span>CBR · GameRant</span>
+    </div>
+    <p>Live per-show countdowns in your own timezone: <a href="https://animeschedule.net/seasons/summer-2026" target="_blank" rel="noopener">animeschedule.net</a> · <a href="https://www.livechart.me/summer-2026" target="_blank" rel="noopener">livechart.me</a>.</p>
+    <p class="fineprint">Compiled June 30, 2026. Synopses summarized from official and licensor descriptions. An unofficial fan reference — not affiliated with any streaming service.</p>
+  </div>
+</footer>
+
+</div><!-- /.page -->
+
+<script>
+/* MAINTENANCE SCHEDULE — when to re-run an episode-count/platform sweep.
+   Based on Crunchyroll's own seasonal-lineup announcement dates, sampled 2020 & 2023-2026:
+     Fall 2020 lineup:   Sep 24, 2020
+     Fall 2023 lineup:   Sep 20, 2023
+     Fall 2024 lineup:   Sep 18, 2024
+     Fall 2025 lineup:   Sep 17, 2025   -> Fall drifts ~1 day earlier per year, usually a Wednesday
+     Winter 2025 lineup: Dec 13, 2024
+     Winter 2026 lineup: Dec 16, 2025
+     Spring 2026 lineup: Mar 24, 2026
+     Summer 2026 lineup: Jun 17, 2026
+   Best-guess announcement dates -> check ~1 week later once corrections settle:
+     Winter (Jan-Mar) lineup ~Dec 14  -> sweep ~Dec 21
+     Spring (Apr-Jun) lineup ~Mar 24  -> sweep ~Mar 31
+     Summer (Jul-Sep) lineup ~Jun 17  -> sweep ~Jun 24
+     Fall   (Oct-Dec) lineup ~Sep 18  -> sweep ~Sep 25  <- NEXT: Fall 2026, watch ~Sep 16-20
+   Re-verify this cadence periodically; a 6-year sample is a strong signal, not a guarantee. */
+const PLAT = {
+  "Crunchyroll":"--cr","HIDIVE":"--hidive","Netflix":"--netflix","Hulu":"--hulu",
+  "Prime Video":"--prime","Disney+":"--disney","TBA":"--tba","Continuing":"--cont"
+};
+const TAB_ORDER = ["All","Crunchyroll","HIDIVE","Netflix","Hulu","Prime Video","Disney+","TBA","Continuing"];
+
+// d = "Mon · Jul 4"; ti = time chip; ty = type; note = small uppercase badge; likely = platform footnote
+/*<<DATA>>*/
+
+// ── Render ──
+const grid=document.getElementById('grid');
+const tabsEl=document.getElementById('tabs');
+const qEl=document.getElementById('q');
+const emptyEl=document.getElementById('empty');
+const countEl=document.getElementById('count');
+const cal=document.getElementById('cal');
+const legendEl=document.getElementById('legend');
+const weeknavEl=document.getElementById('weeknav');
+const wkPrev=document.getElementById('wk-prev'), wkNext=document.getElementById('wk-next'), wkToday=document.getElementById('wk-today');
+const wkRange=document.getElementById('wk-range'), wkCount=document.getElementById('wk-count');
+let current="All";
+let currentView="browse";
+
+const counts={}; TAB_ORDER.forEach(t=>counts[t]=0);
+DATA.forEach(x=>{counts[x.p]=(counts[x.p]||0)+1; counts["All"]++;});
+document.getElementById('s-titles').textContent=counts["All"];
+
+tabsEl.innerHTML='';   // clear any pre-rendered (no-JS fallback) tabs before building live ones
+TAB_ORDER.forEach((name,i)=>{
+  const b=document.createElement('button');
+  b.className='tab'; b.setAttribute('role','tab'); b.dataset.tab=name;
+  b.setAttribute('aria-selected', i===0?'true':'false'); b.tabIndex=i===0?0:-1;
+  const dotColor = name==="All" ? null : `var(${PLAT[name]})`;
+  b.innerHTML = (dotColor?`<span class="pdot" style="background:${dotColor}"></span>`:"") +
+    `<span>${name}</span><span class="ct">${counts[name]||0}</span>`;
+  b.addEventListener('click',()=>{select(name);});
+  b.addEventListener('keydown',e=>{
+    const tabs=[...tabsEl.children];
+    let idx=tabs.indexOf(b);
+    if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+      e.preventDefault();
+      idx=(idx+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+      tabs[idx].focus(); select(tabs[idx].dataset.tab);
+    }
+  });
+  tabsEl.appendChild(b);
+});
+
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+// ── Weekday + time + date helpers (weekly schedule view) ──
+const WD=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const WD_FULL={Mon:"Monday",Tue:"Tuesday",Wed:"Wednesday",Thu:"Thursday",Fri:"Friday",Sat:"Saturday",Sun:"Sunday"};
+const DAYMAP={Mon:"Mon",Monday:"Mon",Mondays:"Mon",Tue:"Tue",Tuesday:"Tue",Tuesdays:"Tue",Wed:"Wed",Wednesday:"Wed",Wednesdays:"Wed",Thu:"Thu",Thursday:"Thu",Thursdays:"Thu",Fri:"Fri",Friday:"Fri",Fridays:"Fri",Sat:"Sat",Saturday:"Sat",Saturdays:"Sat",Sun:"Sun",Sunday:"Sun",Sundays:"Sun"};
+const PLAT_ORDER=["Crunchyroll","HIDIVE","Netflix","Hulu","Prime Video","Disney+","TBA","Continuing"];
+const MONTHS={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+const MNAME=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const SEASON_YEAR=/*<<YEAR>>*/;
+const TODAY=new Date();
+
+function timeToMin(ti){
+  if(!ti) return 1e9;
+  const m=ti.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if(!m) return 1e9;
+  let h=(+m[1])%12; if(/PM/i.test(m[3])) h+=12;
+  return h*60 + (+m[2]);
+}
+// US daylight saving ends Sun Nov 1, 2026 (2:00 AM): US Eastern moves EDT (UTC-4) -> EST (UTC-5).
+// Every time in DATA is the summer (EDT) value, and every dated slot here is anchored to Japan's
+// broadcast clock (JST, no DST) — so from Nov 1 each slot lands one hour EARLIER on the US clock.
+// dispTime applies the shift per rendered date. Note: no entry airs 12:00–12:59 AM, so the -1h
+// never crosses midnight; a future entry in that hour would also need to move a weekday back.
+// US daylight saving ends the first Sunday of November — computed from SEASON_YEAR so a
+// rebuild for a different year stays correct instead of silently using last year's date.
+const DST_END = (()=>{ const d=new Date(SEASON_YEAR,10,1); d.setDate(1+((7-d.getDay())%7)); return d; })();
+function shiftTiBack1h(ti){
+  const m=/^(\d{1,2}):(\d{2}) (AM|PM)$/.exec(ti||""); if(!m) return ti;
+  let h=(+m[1])%12; if(m[3]==="PM") h+=12;
+  let mins=h*60 + (+m[2]) - 60; if(mins<0) mins+=1440;
+  const h24=Math.floor(mins/60), mm=String(mins%60).padStart(2,"0");
+  const ap=h24>=12?"PM":"AM"; let hh=h24%12; if(hh===0) hh=12;
+  return `${hh}:${mm} ${ap}`;
+}
+const dispTime=(x,date)=> (x.ti && !x.us && date>=DST_END) ? shiftTiBack1h(x.ti) : x.ti;   // us:1 marks US-clock-anchored drops (e.g. Netflix 12:00 AM PT) that do not shift at DST end
+
+// Crunchyroll's seasonal-lineup announcements land on a fairly fixed clock (sampled 2020, 2023-2026):
+// Fall ~Sep 17-24 (drifting ~1 day earlier per year, usually a Wednesday), Winter ~Dec 13-16,
+// Spring ~Mar 24, Summer ~Jun 17. Each marker fires for the week containing that date and suggests
+// re-running an episode-count/platform sweep about a week later, once corrections have settled.
+const SWEEP_MARKERS = /*<<MARKERS>>*/;
+const sweepBannerEl=document.getElementById('sweepBanner');
+function renderSweepBanner(days){
+  const hit = SWEEP_MARKERS.find(m => m.date>=days[0] && m.date<=days[6]);
+  if(!hit){ sweepBannerEl.classList.add('hide'); sweepBannerEl.innerHTML=''; return; }
+  const past = hit.date < TODAY;
+  const lead = past ? "Crunchyroll usually announces" : "Crunchyroll typically announces";
+  const tail = past ? "Worth checking whether it\u2019s posted yet \u2014 re-run" : "Once it lands, re-run";
+  sweepBannerEl.classList.remove('hide');
+  sweepBannerEl.innerHTML = `<span class="icon">🔔</span><span class="txt">${lead} its <b>${hit.season}</b> lineup around now (~${fmtMD(hit.date)}). ${tail} the episode-count / platform sweep (~${hit.sweepBy}) to fold in the new season.</span>`;
+}
+function mondayOf(d){ const x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function isoOf(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+function fmtMD(d){ return MNAME[d.getMonth()]+' '+d.getDate(); }
+// Walk the weekly cadence counting real airings: episodes delivered off-cadence
+// (x.add) come out of the run's total, and skipped weeks (x.skip) push it later.
+// Must stay in step with finale_of() in build_calendar.py.
+function runFinale(x){
+  const extras = x.add ? x.add.length : 0;
+  const skip = x.skip || [];
+  let remaining = x.ep - extras;
+  if(remaining <= 0) return firstAir(x);
+  let d = new Date(x._w.start.getTime()), aired = 0;
+  for(let i=0;i<520;i++){                       // bound: no run spans 10 years of weeks
+    if(skip.indexOf(isoOf(d)) < 0){
+      if(++aired === remaining) return d;
+    }
+    d = addDays(d,7);
+  }
+  return null;
+}
+// Earliest airing: an off-cadence early premiere precedes the regular run's start.
+function firstAir(x){
+  let s = x._w && x._w.start ? x._w.start : null;
+  if(x.add) x.add.forEach(iso=>{
+    const d=new Date(iso+"T00:00:00");
+    if(!isNaN(d) && (!s || d<s)) s=d;
+  });
+  return s;
+}
+
+// Decode each entry's `d` field -> {wd, start:Date|null, once:bool}
+// start=null means it was already airing before this season window (continuing).
+// Schedule strings that are *deliberately* undated (announced, no premiere date yet).
+const UNDATED_RE=/^(Winter|Spring|Summer|Fall|Autumn|January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}$/;
+
+// parseWhen returns {wd, start, once, kind}. `kind` makes the outcome explicit so a
+// string we cannot read is reported instead of silently becoming "never airs":
+//   "dated"    - a real premiere date
+//   "once"     - single drop (film / batch release)
+//   "weekly"   - recurring weekday, no start date
+//   "undated"  - intentionally undated (e.g. "Fall 2026")
+//   "unparsed" - NOT understood; surfaced by checkData() rather than ignored
+function parseWhen(x){
+  const d=(x.d||"").trim(); let m;
+  const mk=(mon,day,once)=>{
+    const mi=MONTHS[mon];
+    if(mi===undefined || !(day>=1 && day<=31)) return null;
+    const start=new Date(SEASON_YEAR, mi, +day);
+    if(isNaN(start)) return null;
+    return {wd:DOW[start.getDay()], start, once, kind:once?"once":"dated"};
+  };
+  if(m=d.match(/^([A-Za-z]{3,9})\s*·\s*([A-Za-z]{3})\s+(\d{1,2})$/)){    // "Wed · Jul 4"
+    const r=mk(m[2],m[3],/\bfilm\b/i.test(x.ty||""));
+    if(r){ r.declaredWd=DAYMAP[m[1]]||null; return r; }
+  }
+  // One-off drops: "Released Jun 18" (past) or "All at once · Oct 20" (scheduled batch).
+  if(m=d.match(/^(?:Released|All at once\s*·)\s*([A-Za-z]{3})\s+(\d{1,2})$/)){
+    const r=mk(m[1],m[2],true);
+    if(r) return r;
+  }
+  if(DAYMAP[d]) return {wd:DAYMAP[d], start:null, once:false, kind:"weekly"};   // "Saturdays"
+  if(UNDATED_RE.test(d)) return {wd:null, start:null, once:false, kind:"undated"};
+  return {wd:null, start:null, once:false, kind:"unparsed"};
+}
+// Episode counts. ec:1 = officially confirmed (per LiveChart/MAL); otherwise a standard
+// single-cour estimate, since most Summer 2026 shows have not announced a count yet.
+// `end` (ISO) dates a continuing show's finale from a confirmed total. Air times live in DATA.
+/*<<EP>>*/
+const EP_DEFAULT=12; // assumed cour length when no count is published
+
+DATA.forEach(x=>{
+  // Multi-day cadences (e.g. donghua airing Tue & Fri) carry explicit days/startISO fields;
+  // everything else derives a single weekday from its `d` string.
+  x._w = x.days
+    ? {wds:x.days, wd:null, start:new Date(x.startISO+"T00:00:00"), once:false}
+    : parseWhen(x);
+  const e=EP[x.t]||{};
+  if(x.p==="Continuing"){
+    x.ep=null; x.ec=false;
+    x.fin = e.end ? new Date(e.end+"T00:00:00") : null;   // null => treated as ongoing
+  } else if(x._w.once){
+    x.ep=null; x.ec=false; x.fin=x._w.start; // one-time film/release
+  } else if(x._w.start){
+    x.ep = e.ep || EP_DEFAULT;
+    x.ec = !!e.ec;
+    x.fin = e.end ? new Date(e.end+"T00:00:00")             // explicit finale (multi-day cadence)
+          : x.days ? null
+          : runFinale(x);
+  } else {
+    x.ep=null; x.ec=false; x.fin=null;   // announced but undated (Fall TBA)
+  }
+});
+
+/* ── Data integrity check ───────────────────────────────────────────────
+   This file is maintained by hand-editing DATA and EP, and the failure mode
+   that has actually caused wrong output is a *silent* one: a schedule string
+   that cannot be parsed (the show just never appears), or an EP key whose
+   title no longer matches DATA (the episode count silently does nothing).
+   checkData() turns those into visible errors instead of quiet wrong answers. */
+function checkData(){
+  const errors=[], warnings=[];
+  const seen=new Map();
+  DATA.forEach((x,i)=>{
+    if(!x.t){ errors.push(`entry #${i} has no title`); return; }
+    if(seen.has(x.t)) errors.push(`duplicate title: "${x.t}"`); else seen.set(x.t,i);
+    const w=x._w||{};
+    if(x.days){
+      if(!Array.isArray(x.days) || !x.days.length) errors.push(`"${x.t}": days must be a non-empty array`);
+      else x.days.forEach(d=>{ if(WD.indexOf(d)<0) errors.push(`"${x.t}": unknown weekday "${d}" in days`); });
+      if(!x.startISO || isNaN(new Date(x.startISO+"T00:00:00"))) errors.push(`"${x.t}": days set but startISO missing/invalid`);
+    } else if(w.kind==="unparsed"){
+      errors.push(`"${x.t}": schedule "${x.d}" not understood — it will never appear on the grid`);
+    } else if(w.kind==="dated" && w.declaredWd && w.declaredWd!==w.wd){
+      warnings.push(`"${x.t}": listed as ${w.declaredWd} but ${x.d} falls on ${w.wd}`);
+    }
+    if(x.fin && w.start && x.fin < w.start) errors.push(`"${x.t}": finale precedes premiere`);
+  });
+  Object.keys(EP).forEach(k=>{
+    if(!seen.has(k)) errors.push(`EP key has no matching title (edit does nothing): "${k}"`);
+    const e=EP[k];
+    if(e.end && isNaN(new Date(e.end+"T00:00:00"))) errors.push(`EP "${k}": invalid end date "${e.end}"`);
+    if(e.ep!==undefined && !(Number.isInteger(e.ep) && e.ep>0)) errors.push(`EP "${k}": episode count must be a positive integer`);
+  });
+  if(warnings.length) console.warn("[calendar] "+warnings.length+" warning(s):\n  "+warnings.join("\n  "));
+  if(errors.length){
+    console.error("[calendar] "+errors.length+" data error(s):\n  "+errors.join("\n  "));
+    const bar=document.createElement('div');
+    bar.className='data-error';
+    bar.innerHTML='<b>'+errors.length+' schedule data problem'+(errors.length>1?'s':'')+
+      ' — some titles may be missing.</b><br>'+errors.map(e=>esc(e)).join('<br>');
+    document.body.insertBefore(bar, document.body.firstChild);
+  }
+  return {errors, warnings};
+}
+
+const _starts=DATA.map(x=>x._w.start).filter(Boolean).map(d=>+d);
+const MIN_WEEK=mondayOf(new Date(Math.min(..._starts)));
+const MAX_WEEK=mondayOf(new Date(SEASON_YEAR,11,31));   // through the end of 2026
+function clampWeek(d){ const w=mondayOf(d); return w<MIN_WEEK ? new Date(MIN_WEEK) : (w>MAX_WEEK ? new Date(MAX_WEEK) : w); }
+let weekStart=clampWeek(TODAY);
+
+function renderLegend(list){
+  const present=new Set(list.map(x=>x.p));
+  legendEl.innerHTML = PLAT_ORDER.filter(p=>present.has(p)).map(p=>
+    `<span class="lg"><span class="pdot" style="background:var(${PLAT[p]})"></span>${p}</span>`).join('');
+}
+
+function slotRow(x, date){
+  const pc=`var(${PLAT[x.p]||'--tba'})`;
+  const title = x.u ? `<a href="${x.u}" target="_blank" rel="noopener">${esc(x.t)}</a>` : esc(x.t);
+  let tag="";
+  if(/\bfilm\b/i.test(x.ty)) tag=`<span class="slot-tag">film</span>`;
+  else if(firstAir(x) && !x._w.once && sameDay(date,firstAir(x))) tag=`<span class="slot-tag prem">premiere</span>`;
+  else if(x.fin && !x._w.once && sameDay(date,x.fin)) tag=`<span class="slot-tag fin">finale</span>`;
+  const epTip = x.ep ? (x.ec? x.ep+' eps' : '~'+x.ep+' eps (est.)') : '';
+  const tip = esc([x.ty,x.g,epTip].filter(Boolean).join(' · '));
+  const t = dispTime(x, date);
+  return `<div class="slot" title="${tip}">
+    <span class="slot-time ${t?'':'tba'}">${esc(t||'TBA')}</span>
+    <span class="slot-body">
+      <span class="slot-title"><span class="slot-plat" style="background:${pc}"></span>${title}</span>
+      ${tag?`<span class="slot-tags">${tag}</span>`:''}
+    </span>
+  </div>`;
+}
+
+// Place the filtered list into the currently-selected week (weekStart).
+// Recurring shows appear from their premiere onward; one-time releases only in their own week;
+// not-yet-premiered titles are omitted entirely.
+function showsForWeek(list){
+  const days=Array.from({length:7},(_,i)=>addDays(weekStart,i));   // Mon..Sun dates
+  const byIdx=days.map(()=>[]); const noDay=[]; const shown=new Set();
+  list.forEach(x=>{
+    const w=x._w;
+    // Off-cadence airings (early premieres, bonus episodes). An extra date can land
+    // on a weekday the regular run never uses, so it is matched by date, not weekday,
+    // and before the no-weekday bail-out below.
+    if(x.add){
+      x.add.forEach(iso=>{
+        const i = days.findIndex(d=>isoOf(d)===iso);
+        if(i>=0 && byIdx[i].indexOf(x)<0){ byIdx[i].push(x); shown.add(x.t); }
+      });
+    }
+    const wds = w.wds || (w.wd ? [w.wd] : null);
+    if(!wds){ if(!shown.has(x.t)) noDay.push(x); return; }
+    wds.forEach(wd=>{
+      const idx=WD.indexOf(wd), cell=days[idx];
+      let show;
+      if(w.once){ show = !!(w.start && w.start>=days[0] && w.start<=days[6]); }
+      else { show = ((w.start==null) || (w.start<=cell)) && (x.fin==null || cell<=x.fin); }
+      // Broadcast breaks: a run is not always an unbroken weekly sequence.
+      if(show && x.skip && x.skip.indexOf(isoOf(cell))>=0) show=false;
+      if(show){ byIdx[idx].push(x); shown.add(x.t); }
+    });
+  });
+  byIdx.forEach(a=>a.sort((a,b)=> timeToMin(a.ti)-timeToMin(b.ti) || a.t.localeCompare(b.t) ));
+  return {days, byIdx, total:shown.size, noDay};
+}
+
+function renderWeek(list){
+  const {days, byIdx, total, noDay}=showsForWeek(list);
+  cal.innerHTML = WD.map((d,i)=>{
+    const date=days[i], isToday=sameDay(date,TODAY);
+    return `<section class="day ${isToday?'today':''}" aria-label="${WD_FULL[d]} ${fmtMD(date)}">
+      <div class="day-h">
+        <span class="dh-l"><span class="dname">${d}</span><span class="ddate">${fmtMD(date)}</span>${isToday?'<span class="dtoday">Today</span>':''}</span>
+        <span class="dcount">${byIdx[i].length}</span>
+      </div>
+      <div class="day-list">
+        ${byIdx[i].length ? byIdx[i].map(x=>slotRow(x,date)).join('') : '<div class="day-empty">—</div>'}
+      </div>
+    </section>`;
+  }).join('');
+
+  wkRange.textContent = `${fmtMD(weekStart)} – ${fmtMD(days[6])}, ${weekStart.getFullYear()}`;
+  const tzNote = weekStart>=DST_END ? ' · times in EST'
+               : days[6]>=DST_END ? ' · EST from Sun Nov 1 (clocks fall back)'
+               : '';
+  wkCount.textContent = `${total} ${total===1?'title':'titles'} airing${tzNote}`;
+  wkPrev.disabled = weekStart<=MIN_WEEK;
+  wkNext.disabled = weekStart>=MAX_WEEK;
+  wkToday.disabled = sameDay(weekStart, clampWeek(TODAY));
+  renderSweepBanner(days);
+
+  const old=document.getElementById('noslot'); if(old) old.remove();
+  if(noDay.length){
+    const div=document.createElement('div'); div.className='noslot'; div.id='noslot';
+    div.innerHTML = `<b>Announced for 2026, premiere date not yet scheduled:</b> ` +
+      noDay.map(x=>esc(x.t)).join(' · ') + `.`;
+    cal.parentNode.insertBefore(div, cal.nextSibling);
+  }
+}
+
+
+function card(x){
+  const pc=`var(${PLAT[x.p]||'--tba'})`;
+  const titleInner = x.u
+    ? `<a href="${x.u}" target="_blank" rel="noopener">${esc(x.t)}</a>`
+    : esc(x.t);
+  const platLabel = x.p==="Prime Video" ? "PRIME" : x.p.toUpperCase();
+  const timeChip = x.ti
+    ? `<span class="time">${x.ti} ET</span>`
+    : `<span class="time tba">TBA</span>`;
+  const noteEl = x.note ? `<span class="badge">${esc(x.note)}</span>` : "";
+  const tagBits = [x.ty, x.g].filter(Boolean).map(esc).join(' <span class="sep">/</span> ');
+  const likelyEl = x.likely ? `<div class="tagline" style="color:var(--faint)">${esc(x.likely)}</div>` : "";
+  let runEl="";
+  if(x.ep){
+    const ends = x.fin ? `${MNAME[x.fin.getMonth()]} ${x.fin.getDate()}` : "";
+    const past = x.fin && x.fin < TODAY;
+    runEl = `<div class="runline">${x.ec?'':'~'}${x.ep} eps${x.ec?'':' est.'}${ends?(past?` · ended ${ends} — complete`:` · ends ${x.ec?'':'~'}${ends}`):''}</div>`;
+  } else if(x.p==="Continuing"){
+    const past = x.fin && x.fin < TODAY;
+    runEl = x.fin ? `<div class="runline">${past?`ended ${MNAME[x.fin.getMonth()]} ${x.fin.getDate()} — season complete`:`ongoing · ends ~${MNAME[x.fin.getMonth()]} ${x.fin.getDate()}`}</div>` : `<div class="runline">ongoing</div>`;
+  }
+  return `<article class="card" style="--pc:${pc}" data-plat="${esc(x.p)}" data-search="${esc((x.t+' '+x.ty+' '+x.g).toLowerCase())}">
+    <div class="chips">
+      <span class="plat" style="background:${pc}">${platLabel}</span>
+      <span class="when"><b>${esc(x.d)}</b></span>
+      ${timeChip}
+    </div>
+    <h3>${titleInner}</h3>
+    <div class="tagline">${tagBits}</div>
+    ${runEl}
+    ${noteEl?`<div>${noteEl}</div>`:""}
+    <p class="syn clamp">${esc(x.syn)}</p>
+    <button class="more" type="button">Read more</button>
+    ${likelyEl}
+  </article>`;
+}
+
+function render(){
+  const q=qEl.value.trim().toLowerCase();
+  const list=DATA.filter(x=>(current==="All" || x.p===current))
+                 .filter(x=> !q || (x.t+' '+x.ty+' '+x.g+' '+x.syn).toLowerCase().includes(q));
+  countEl.textContent = `${list.length} ${list.length===1?'title':'titles'}${current==="All"?'':' · '+current}${q?` · matching “${q}”`:''}`;
+  const has=list.length>0;
+  emptyEl.style.display=has?'none':'block';
+
+  if(currentView==="weekly"){
+    grid.classList.add('hide'); grid.innerHTML='';
+    if(has){
+      weeknavEl.classList.remove('hide'); cal.classList.remove('hide'); legendEl.classList.remove('hide');
+      renderLegend(list); renderWeek(list);
+    } else {
+      weeknavEl.classList.add('hide'); cal.classList.add('hide'); legendEl.classList.add('hide'); cal.innerHTML='';
+      sweepBannerEl.classList.add('hide'); sweepBannerEl.innerHTML='';
+      const n=document.getElementById('noslot'); if(n) n.remove();
+    }
+    return;
+  }
+
+  weeknavEl.classList.add('hide'); cal.classList.add('hide'); legendEl.classList.add('hide');
+  sweepBannerEl.classList.add('hide'); sweepBannerEl.innerHTML='';
+  const n=document.getElementById('noslot'); if(n) n.remove();
+  grid.classList.remove('hide');
+  grid.innerHTML=list.map(card).join('');
+  grid.querySelectorAll('.card').forEach(c=>{
+    const syn=c.querySelector('.syn'), btn=c.querySelector('.more');
+    // hide toggle if text isn't actually clamped
+    requestAnimationFrame(()=>{ if(syn.scrollHeight<=syn.clientHeight+2){btn.style.display='none';} });
+    btn.addEventListener('click',()=>{
+      const open=syn.classList.toggle('clamp')===false;
+      btn.textContent=open?'Show less':'Read more';
+    });
+  });
+}
+
+function select(name){
+  current=name;
+  [...tabsEl.children].forEach(b=>{
+    const on=b.dataset.tab===name;
+    b.setAttribute('aria-selected',on?'true':'false'); b.tabIndex=on?0:-1;
+  });
+  render();
+}
+
+qEl.addEventListener('input',render);
+
+const vb=document.getElementById('view-browse'), vw=document.getElementById('view-weekly');
+function setView(v){
+  currentView=v;
+  const weekly = v==="weekly";
+  vw.classList.toggle('on',weekly); vb.classList.toggle('on',!weekly);
+  vw.setAttribute('aria-pressed',String(weekly)); vb.setAttribute('aria-pressed',String(!weekly));
+  render();
+}
+vb.addEventListener('click',()=>setView("browse"));
+vw.addEventListener('click',()=>setView("weekly"));
+
+function gotoWeek(d){ weekStart=clampWeek(d); render(); }
+wkPrev.addEventListener('click',()=>{ if(weekStart>MIN_WEEK) gotoWeek(addDays(weekStart,-7)); });
+wkNext.addEventListener('click',()=>{ if(weekStart<MAX_WEEK) gotoWeek(addDays(weekStart,7)); });
+wkToday.addEventListener('click',()=>gotoWeek(TODAY));
+
+checkData();
+render();
+</script>
+</body>
+</html>

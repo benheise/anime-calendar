@@ -289,7 +289,7 @@ def validate(rows, year):
         # Stored times are EDT references: the page subtracts an hour for any row not marked
         # US-anchored once DST ends. A show that only STARTS after that date was almost
         # certainly entered from an EST source, so the page would shift it an extra hour.
-        # (Demons' Crest: entered as 10:01 AM EST, displayed 9:01 AM.)
+        # (Devils' Crest: entered as 10:01 AM EST, displayed 9:01 AM.)
         dst_end = datetime.date(year, 11, 1)
         dst_end += datetime.timedelta(days=(6 - dst_end.weekday()) % 7)   # first Sunday of Nov
         if (w.get("start") and w["start"] >= dst_end and str(r["Time (ET)"] or "").strip()

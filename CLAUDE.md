@@ -94,7 +94,7 @@ rejecting it.
 
 ### A pre-premiere date is a placeholder too — the platform's date wins
 
-*Demons' Crest* sat on **Thu Nov 5, 10:01 AM** because that was AnimeSchedule's
+*Devils' Crest* sat on **Thu Nov 5, 10:01 AM** because that was AnimeSchedule's
 pre-premiere entry. Prime Video had announced **Friday Nov 6** since July, and every source
 (Prime's own PR, ANN, Wikipedia) said so. It premiered Nov 6 at 7:01 AM EST with two
 episodes. The rule already said "platform wins on dates"; the row broke it because the
@@ -278,6 +278,17 @@ row landing on the same platform, day and time as an existing one is the tell �
 plenty of genuinely different simulcasts share a slot, so it is a prompt to check, not
 proof.
 
+### Use the platform's English title, exactly
+
+*Devils' Crest* was on the calendar as **"Demons' Crest"** from the day it was added until
+Ben caught it on Nov 6, through two sweeps that researched the row's date and time. Prime
+Video and ANN both say *Devils' Crest*, and the Nov 6 searches returned that title while
+the row was being edited, but nobody compared it with the row. The `Title` must match
+the platform's listing character for character, because that is what Ben searches for in
+the app. When you research a row, check its title against the platform's own listing as
+well as its date and time. When you rename a row, add the old name to the caveat so
+searching for it still finds the row.
+
 ### Saturday-morning JP shows are FRIDAY evening Eastern
 
 *Sgt. Frog* airs Saturday morning on TV Tokyo, which is Friday ~9:00 PM ET. It sat on the
@@ -306,9 +317,9 @@ break this week".
 He watches these on the actual platforms. He has been right **every single time** —
 Victoria of Many Faces, Chainsmoker Cat, Tomb Raider King, Ramparts of Ice, Overgeared,
 HIDIVE's lineup, Exiled Heavy Knight's time, Slime, Magic Repo Man's date, and its time,
-A Certain Dark Item's time, Paw & Palaces, Broken Saintess's platform, and Demons' Crest's
-premiere day (Nov 6). When he says "some shows are still on the wrong day", the Nov 6
-sweep found two: Demons' Crest and Genso Suikoden.
+A Certain Dark Item's time, Paw & Palaces, Broken Saintess's platform, and Devils' Crest's
+premiere day (Nov 6) and its title. When he says "some shows are still on the wrong day", the Nov 6
+sweep found two: Devils' Crest and Genso Suikoden.
 
 When his observation conflicts with a source, **the source is wrong.** Fix the data first,
 then work out which source misled and write the lesson down here.
@@ -355,17 +366,17 @@ an hour from every row **not** marked `US-anchored`. Two rules follow:
      "毎週日曜日午前0時(日本時間)", every Sunday at 0:00 JST. 8:00 AM PDT is just that time
      converted during summer. **A Pacific-time figure quoted during PDT is not evidence of
      US anchoring.** Look for the Japanese-language release, which states the JST anchor.
-     Corroborated: Demons' Crest (21:00 JST) and TANK CHAIR both moved with Japan.
+     Corroborated: Devils' Crest (21:00 JST) and TANK CHAIR both moved with Japan.
    - Anchored to a European clock (Dreamland, 19:00 Paris): Europe and the US both leave
      summer time by Nov 1, so the ET time is the same before and after. Mark `US-anchored`
      so the page does not subtract an hour.
    - Unknown → leave the default and flag it; the first post-DST episode settles it.
 2. **A time copied from an EST source for a show starting after DST would be shifted an
-   extra hour.** Demons' Crest was entered as "10:01 AM EST" and would have displayed 9:01.
+   extra hour.** Devils' Crest was entered as "10:01 AM EST" and would have displayed 9:01.
    `--check` now warns on any unanchored row whose run starts after DST ends.
 
 Verified Oct 23 across the Nov 1 boundary: TOUGEN ANKI 12:00 → 11:00, Ranma 11:55 → 10:55,
-Dark Summoner flips on Nov 1 itself; Ramparts, Marronnier, Demons' Crest and Fool Night hold.
+Dark Summoner flips on Nov 1 itself; Ramparts, Marronnier, Devils' Crest and Fool Night hold.
 
 **Unsupported services, continued:** It's Anime (YouTube channel) — Magical Sisters
 LuluttoLilly Cour 2 streams there and was removed Oct 23.

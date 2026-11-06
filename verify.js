@@ -68,8 +68,8 @@ function has(dayText, title, time) {
 today();
 let w = week();
 console.log(`this week: ${w._range} — ${w._count}`);
-ok(has(w.Fri, "Demons' Crest", '7:00 AM'), "Demons' Crest on Fri Nov 6 at 7:00 AM");
-ok(!has(w.Thu, "Demons' Crest"), "Demons' Crest NOT on Thursday");
+ok(has(w.Fri, "Devils' Crest", '7:00 AM'), "Devils' Crest on Fri Nov 6 at 7:00 AM");
+ok(!has(w.Thu, "Devils' Crest"), "Devils' Crest NOT on Thursday");
 ok(!JSON.stringify(w).includes('Genso Suikoden'), 'Genso Suikoden removed');
 ok(has(w.Tue, 'Battle Spirits', '9:30 AM'), 'Battle Spirits Tue 9:30 AM (EST)');
 ok(has(w.Thu, 'The Ramparts of Ice Season 2', '10:30 AM'), 'Ramparts S2 Thu 10:30 AM');
@@ -90,7 +90,7 @@ ok(has(w.Fri, 'Cardfight', ''), 'Cardfight!! Vanguard (TBA) on Fri');
 next(); w = week();
 console.log(`next week: ${w._range} — ${w._count}`);
 ok(has(w.Mon, 'Psyren', '10:30 AM'), 'Psyren back Mon Nov 9 at 10:30 AM');
-ok(has(w.Fri, "Demons' Crest", '7:00 AM'), "Demons' Crest weekly Fri Nov 13");
+ok(has(w.Fri, "Devils' Crest", '7:00 AM'), "Devils' Crest weekly Fri Nov 13");
 
 // jump to Dec 21 week
 for (let i = 0; i < 6; i++) next();

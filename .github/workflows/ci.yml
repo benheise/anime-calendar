@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          npm ci
+
+      - name: Unit tests
+        run: python -m pytest -q
+
+      - name: Validate the workbook
+        run: python build_calendar.py --check
+
+      # verify.js asserts placements as of the sweep date, so build and check
+      # against that pinned date rather than the day CI happens to run.
+      - name: Build with a pinned date
+        run: python build_calendar.py --today 2026-11-06 --out "$RUNNER_TEMP/calendar.html"
+
+      - name: Verify the page in jsdom
+        run: node verify.js "$RUNNER_TEMP/calendar.html" 2026-11-06
+
+      - name: Committed page is up to date with the workbook and template
+        run: |
+          built=$(grep -o '<time datetime="[0-9-]*"' anime-calendar-2026.html | head -1 | grep -o '[0-9-]\{10\}')
+          python build_calendar.py --today "$built" --out "$RUNNER_TEMP/committed-check.html"
+          diff -q anime-calendar-2026.html "$RUNNER_TEMP/committed-check.html" \
+            || { echo "::error::anime-calendar-2026.html is stale. Run python3 build_calendar.py and commit the result."; exit 1; }

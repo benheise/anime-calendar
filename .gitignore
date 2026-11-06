@@ -40,3 +40,6 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# --- Test caches ------------------------------------------------------------
+.pytest_cache/

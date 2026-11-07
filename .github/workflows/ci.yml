@@ -1,9 +1,12 @@
 name: CI
 
+# Every push and PR is tested. A push to main that passes is also published to
+# GitHub Pages (Settings → Pages → Source: GitHub Actions).
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -49,3 +52,36 @@ jobs:
           python build_calendar.py --today "$built" --out "$RUNNER_TEMP/committed-check.html"
           diff -q anime-calendar-2026.html "$RUNNER_TEMP/committed-check.html" \
             || { echo "::error::anime-calendar-2026.html is stale. Run python3 build_calendar.py and commit the result."; exit 1; }
+
+      # Publish exactly the committed page, which the step above just proved is
+      # current. index.html gives the short URL; the original name keeps old links working.
+      - name: Stage the site
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          mkdir -p _site
+          cp anime-calendar-2026.html _site/index.html
+          cp anime-calendar-2026.html _site/anime-calendar-2026.html
+
+      - name: Upload the site
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build-and-verify
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

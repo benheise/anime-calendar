@@ -462,6 +462,9 @@ snapshot in ET of the build week, so `--today` decides what Quick Look shows.
 - CI (`.github/workflows/ci.yml`) runs all of it on every push and PR, and fails if the
   committed `anime-calendar-2026.html` is not what the workbook and template build.
   Commit the rebuilt page with every data change.
+- **Publishing:** a passing push to `main` deploys the committed page to GitHub Pages
+  (https://benheise.github.io/anime-calendar/, as `index.html` and under its own name).
+  A sweep is not live until its PR is merged and that run's `deploy` job succeeds.
 
 Always run the jsdom check before shipping. It has caught real bugs that `--check` cannot
 see — a DST shift silently moving a Netflix batch drop to 2:00 AM, duplicate tabs, and

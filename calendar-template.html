@@ -172,6 +172,34 @@ main:focus{outline:none}
 .ep-num{color:var(--text); opacity:.85; font-weight:600}
 .ep.is-past .ep-btn{opacity:.5}
 .ep.is-past .ep-btn:hover{opacity:.85}
+/* Cover art filling a slot. --scrim is measured per cover at build time (covers.py): the
+   lightest ink overlay at which the white text keeps 4.5:1 over the brightest 2% of the art
+   the slot shows. The overlay is never lighter than that; the left edge, where text starts,
+   gets a little more. Tags sit on solid chips, so they never depend on the art. */
+.ep-btn{isolation:isolate; overflow:hidden}
+.has-art .ep-btn{background:var(--raise); background:color-mix(in srgb, var(--tone) 28%, var(--panel)); color:#fff; text-shadow:0 1px 2px rgb(8 5 14 / .55)}
+.has-art .ep-btn::after{content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(90deg, rgb(21 16 31 / calc(var(--scrim) + .14)) 0%, rgb(21 16 31 / var(--scrim)) 78%)}
+.ep-art,.thumb img{display:block; object-fit:cover; object-position:50% 22%}
+.ep-art{position:absolute; inset:0; width:100%; height:100%; z-index:-2; pointer-events:none; transition:transform .3s ease}
+.has-art .ep-time,.has-art .ep-time.tba,.has-art .ep-title,.has-art .ep-meta,.has-art .ep-num{color:#fff; opacity:1}
+.has-art .ep-meta{font-weight:550}
+.has-art .tag{background:rgb(21 16 31 / .88); text-shadow:none}
+.has-art .ep-btn:hover{box-shadow:inset 0 0 0 1px rgb(255 255 255 / .45)}
+.has-art .ep-btn:hover .ep-art{transform:scale(1.05)}
+.has-art.is-past .ep-art{filter:grayscale(.8)}
+.no-art .ep-art,.no-art .thumb{display:none}
+.no-art .has-art .ep-btn{background:transparent; text-shadow:none}
+.no-art .has-art .ep-btn::after{content:none}
+.no-art .has-art .ep-time.tba,.no-art .has-art .ep-meta{color:var(--muted)}
+.no-art .has-art .ep-title,.no-art .has-art .ep-time{color:var(--text)}
+.no-art .has-art .ep-num{color:var(--text); opacity:.85}
+.no-art .has-art .ep-meta{font-weight:400}
+.no-art .has-art .tag{background:none}
+/* Poster thumbnails (Up next, All shows, the show sheet). Text sits beside them, never on top. */
+.thumb{flex:0 0 auto; width:34px; aspect-ratio:23/32; border-radius:4px; overflow:hidden; background:var(--raise); background:color-mix(in srgb, var(--tone, var(--raise)) 35%, var(--panel))}
+.thumb img{width:100%; height:100%; object-position:50% 30%}
+.thumb.lg{width:104px; border-radius:var(--r-md)}
 .ep.is-mine .ep-title::after{content:" ★"; color:var(--live); font-size:12px}
 .nowline{display:flex; align-items:center; gap:6px; margin:4px 0; font:700 12.5px/1 var(--cond); color:var(--live); font-variant-numeric:tabular-nums}
 .nowline::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--live); box-shadow:0 0 0 3px rgba(255,194,75,.18)}
@@ -201,6 +229,8 @@ main:focus{outline:none}
 .ag-time{font:700 17px/1.2 var(--cond); font-variant-numeric:tabular-nums}
 .ag-time.tba{color:var(--muted); font-size:14px}
 .ag-bar{align-self:stretch; background:var(--pc); border-radius:2px}
+.ag-main{display:flex; align-items:center; gap:12px; min-width:0}
+.ag-text{min-width:0}
 .ag-title{font-weight:650; line-height:1.3}
 .ag-sub{display:flex; flex-wrap:wrap; gap:3px 8px; color:var(--muted); font-size:13px; margin-top:2px}
 .ag-cd{font:600 15px/1.2 var(--cond); color:var(--muted); font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap}
@@ -229,7 +259,9 @@ main:focus{outline:none}
 .star:hover{background:var(--raise); color:var(--text)}
 .star[aria-pressed="true"]{color:var(--live)}
 .star[aria-pressed="true"] svg{fill:var(--live)}
-.dir-link{display:flex; flex-direction:column; min-width:0; text-decoration:none; border:0; background:none; padding:0; text-align:left; color:inherit}
+.dir-link{display:flex; align-items:center; gap:12px; min-width:0; text-decoration:none; border:0; background:none; padding:0; text-align:left; color:inherit}
+.dir-link .thumb{width:30px}
+.dir-text{display:flex; flex-direction:column; min-width:0}
 .dir-title{font-weight:650; line-height:1.3}
 .dir-link:hover .dir-title{text-decoration:underline; text-underline-offset:3px; text-decoration-color:var(--line-2)}
 .dir-sub{display:flex; gap:12px; color:var(--muted); font-size:13px; white-space:nowrap; overflow:hidden}
@@ -277,7 +309,7 @@ main:focus{outline:none}
 /* ── Detail sheet ───────────────────────────────────────────────────────── */
 dialog{color:var(--text)}
 dialog::backdrop{background:rgba(8,5,14,.62); backdrop-filter:blur(2px)}
-.sheet{position:fixed; inset:0 0 0 auto; margin:0; height:100%; max-height:100%; width:min(480px, 100%); padding:0; border:0;
+.sheet{position:fixed; inset:0 0 0 auto; margin:0; height:100%; max-height:100%; max-width:100%; width:min(480px, 100%); padding:0; border:0;
   border-left:1px solid var(--line-2); background:var(--panel); overflow:auto; overscroll-behavior:contain}
 .sheet[open]{animation:sheet-in .22s cubic-bezier(.2,.8,.2,1)}
 @keyframes sheet-in{from{transform:translateX(24px); opacity:.4}}
@@ -286,6 +318,8 @@ dialog::backdrop{background:rgba(8,5,14,.62); backdrop-filter:blur(2px)}
 .sh-plat i{width:10px; height:10px; border-radius:50%; background:var(--pc)}
 .sh-close{margin-left:auto}
 .sh-body{padding:18px 20px 28px}
+.sh-hero{display:flex; gap:16px; align-items:flex-end; margin:0 0 14px}
+.sh-hero .sh-status{margin:0}
 .sh-title{font-size:25px; line-height:1.15; font-weight:780; letter-spacing:-.015em; margin:0 0 6px}
 .sh-status{color:var(--muted); margin:0 0 16px}
 .sh-next{display:grid; grid-template-columns:3px 1fr; column-gap:12px; padding:12px 14px; border-radius:var(--r-md); background:var(--ink); margin:0 0 16px}
@@ -326,7 +360,7 @@ details.notes p{line-height:1.55}
 .field .hint{color:var(--muted); font-size:13px}
 fieldset.field{border:0; padding:0; margin:0 0 16px}
 .radios{display:flex; gap:16px}
-.radios label{font-weight:500; display:flex; gap:6px; align-items:center}
+.radios label,.check{font-weight:500; display:flex; gap:6px; align-items:center}
 .pop-actions{display:flex; justify-content:flex-end; gap:8px}
 
 /* ── Narrow screens ─────────────────────────────────────────────────────── */
@@ -402,6 +436,12 @@ fieldset.field{border:0; padding:0; margin:0 0 16px}
   .ep-btn{padding:3px 4px 3px 7px; -webkit-print-color-adjust:exact; print-color-adjust:exact}
   .ep.is-past .ep-btn{opacity:1}
   .nowline{display:none}
+  .ep-art,.thumb{display:none !important}
+  .has-art .ep-btn{background:none !important; text-shadow:none}
+  .has-art .ep-btn::after{content:none}
+  .has-art .ep-time,.has-art .ep-title,.has-art .ep-num{color:#111}
+  .has-art .ep-meta,.has-art .ep-time.tba{color:#555}
+  .has-art .tag{background:none}
   .print-title{display:block; margin:0 0 4px; font-weight:700}
   a{text-decoration:none}
 }
@@ -503,6 +543,7 @@ fieldset.field{border:0; padding:0; margin:0 0 16px}
         <li>Each entry is one release: the moment a subtitled episode goes live on the platform. That is usually 30 to 90 minutes after the episode airs on Japanese TV.</li>
         <li>Releases are grouped into hour rows, so the whole week lines up by time of day. Today's column is highlighted, a line marks the current time, and releases that are already out are dimmed.</li>
         <li>Select any entry for the show's details, its upcoming episodes, where to watch it, and a file you can add to your own calendar.</li>
+        <li>Each release shows the show's cover art behind it, darkened just enough to keep the text readable on that particular cover. To see a plain schedule, turn off cover art with the clock button at the top of the page.</li>
         <li>On a phone, pick a day from the strip above the schedule.</li>
         <li><b>Up next</b> lists the next seven days in order with a countdown to each release. <b>All shows</b> lists every title by status: airing now, starting soon, date not announced, or finished.</li>
       </ul>
@@ -552,6 +593,7 @@ fieldset.field{border:0; padding:0; margin:0 0 16px}
         <li>Release times: AnimeSchedule's tracked subtitle release times, checked against releases as they happen.</li>
         <li>Episode counts and endings: Anime News Network, official sites and Wikipedia episode lists.</li>
         <li>Cross-platform checks: the Anime UK News simulcast line-up thread, What's on Netflix and What's on Disney Plus.</li>
+        <li>Cover art and show links: <a href="https://anilist.co" target="_blank" rel="noopener">AniList</a>. Images load from AniList when the page opens; without a connection the schedule shows without them.</li>
       </ul>
       <p>Schedules change often: delays, recap weeks, early drops, double episodes. Check the platform before a premiere.</p>
 
@@ -559,7 +601,7 @@ fieldset.field{border:0; padding:0; margin:0 0 16px}
       <p>The schedule is re-checked against these sources regularly, and whenever a release doesn't match what was observed on the platform. Crunchyroll usually announces each season's lineup around March 24, June 17, September 18 and December 14, and the calendar picks up the new season about a week later.</p>
 
       <h2 id="g-about">About</h2>
-      <p>An unofficial fan reference, not affiliated with any streaming service or studio. Synopses are summarized from official descriptions.</p>
+      <p>An unofficial fan reference, not affiliated with any streaming service or studio. Synopses are summarized from official descriptions. Cover art belongs to its rights holders and is shown from AniList.</p>
       <p class="stamp">Last updated <time datetime="<!--<<BUILT_ISO>>-->"><!--<<BUILT>>--></time>.</p>
     </article>
     <nav class="toc" aria-label="On this page">
@@ -602,6 +644,11 @@ fieldset.field{border:0; padding:0; margin:0 0 16px}
         <label><input type="radio" name="clock" value="12"> 12-hour</label>
         <label><input type="radio" name="clock" value="24"> 24-hour</label>
       </div>
+    </fieldset>
+    <fieldset class="field">
+      <legend>Cover art</legend>
+      <label class="check"><input type="checkbox" id="art-toggle"> Show cover art</label>
+      <span class="hint">Turn off for a plain schedule. Off by default when your system asks for more contrast.</span>
     </fieldset>
     <div class="pop-actions">
       <button class="btn btn-primary" value="ok">Done</button>
@@ -654,6 +701,7 @@ const state = {
   view: "schedule",
   tz: store.get("tz", "auto"),
   h24: store.get("h24", false),
+  art: store.get("art", null),   // null = automatic (on, unless the system asks for more contrast)
   plats: new Set(store.get("plats", []).filter(p => PLAT_VAR[p])),
   mine: new Set(store.get("mine", []).filter(id => byId.has(id))),
   mineOnly: store.get("mineOnly", false),
@@ -774,12 +822,36 @@ function renderFilters() {
 }
 
 /* ── Schedule ──────────────────────────────────────────────────────────── */
+/* Cover art. Images load from AniList's CDN; one that fails is remembered and the slot falls
+   back to the plain design, which has its own validated contrast. */
+const ART_FAILED = new Set();
+const prefersMore = () => { try { return matchMedia("(prefers-contrast: more)").matches; } catch (e) { return false; } };
+const artOn = () => state.art == null ? !prefersMore() : !!state.art;
+const hasArt = s => !!(s.im && !ART_FAILED.has(s.im));
+function artBits(s) {
+  if (!hasArt(s)) return {cls: "", style: "", img: ""};
+  const srcset = s.ix ? ` srcset="${esc(s.im)} 230w, ${esc(s.ix)} 460w" sizes="(max-width:1023px) 100vw, 13vw"` : "";
+  return {cls: " has-art", style: `;--scrim:${s.sa};--tone:${esc(s.ic || "#2a2142")}`,
+          img: `<img class="ep-art" src="${esc(s.im)}"${srcset} alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`};
+}
+function thumbHtml(s, large) {
+  const img = hasArt(s) ? `<img src="${esc(large && s.ix ? s.ix : s.im)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : "";
+  return `<span class="thumb${large ? " lg" : ""}" style="--tone:${esc(s.ic || "#2a2142")}" aria-hidden="true">${img}</span>`;
+}
+document.addEventListener("error", e => {
+  const im = e.target;
+  if (!im || im.tagName !== "IMG" || !(im.classList.contains("ep-art") || im.closest(".thumb"))) return;
+  ART_FAILED.add(im.getAttribute("src"));
+  const li = im.closest(".has-art"); if (li) li.classList.remove("has-art");
+  im.remove();
+}, true);
+
 function entryHtml(x, past) {
-  const s = x.s, ep = epLabel(x.a, x.b);
+  const s = x.s, ep = epLabel(x.a, x.b), art = artBits(s);
   const time = x.ms != null ? fmtTime(x.ms) : "Time TBA";
   const label = `${s.t}${ep ? ", " + ep : ""}, ${time}${x.ms == null ? "" : " " + tzAbbr(x.ms)}, ${PLAT_NAME(s.p)}`;
-  return `<li class="ep${past ? " is-past" : ""}${state.mine.has(s.i) ? " is-mine" : ""}" style="--pc:var(${PLAT_VAR[s.p] || "--tba"})">` +
-    `<a class="ep-btn" href="#show:${esc(s.i)}" data-show="${esc(s.i)}" aria-label="${esc(label)}">` +
+  return `<li class="ep${past ? " is-past" : ""}${state.mine.has(s.i) ? " is-mine" : ""}${art.cls}" style="--pc:var(${PLAT_VAR[s.p] || "--tba"})${art.style}">` +
+    `<a class="ep-btn" href="#show:${esc(s.i)}" data-show="${esc(s.i)}" aria-label="${esc(label)}">${art.img}` +
     `<span class="ep-time${x.ms == null ? " tba" : ""}">${esc(time)}</span>` +
     `<span class="ep-title">${esc(s.t)}</span>` +
     `<span class="ep-meta">${ep ? `<span class="ep-num">${esc(ep)}</span>` : ""}<span class="ep-plat">${esc(PLAT_NAME(s.p))}</span>${tagsHtml(x)}</span>` +
@@ -918,7 +990,7 @@ function renderUpcoming() {
     const ep = epLabel(x.a, x.b), cd = x.ms != null ? countdown(x.ms) : {txt: "", soon: false};
     return `<li class="ag${past ? " is-past" : ""}" style="--pc:var(${PLAT_VAR[x.s.p]})"><a class="ag-btn" href="#show:${esc(x.s.i)}" data-show="${esc(x.s.i)}">` +
       `<span class="ag-time${x.ms == null ? " tba" : ""}">${esc(x.ms != null ? fmtTime(x.ms) : "Time TBA")}</span><span class="ag-bar" aria-hidden="true"></span>` +
-      `<span><span class="ag-title">${esc(x.s.t)}</span><span class="ag-sub">${ep ? `<span>${esc(ep)}</span>` : ""}<span>${esc(PLAT_NAME(x.s.p))}</span>${tagsHtml(x)}</span></span>` +
+      `<span class="ag-main">${thumbHtml(x.s)}<span class="ag-text"><span class="ag-title">${esc(x.s.t)}</span><span class="ag-sub">${ep ? `<span>${esc(ep)}</span>` : ""}<span>${esc(PLAT_NAME(x.s.p))}</span>${tagsHtml(x)}</span></span></span>` +
       `<span class="ag-cd${cd.soon ? " soon" : ""}"${x.ms != null ? ` data-cd="${x.ms}"` : ""}>${esc(cd.txt)}</span></a></li>`;
   };
   const dayTitle = k => k === tk ? "Today" : k === addDays(tk, 1) ? "Tomorrow" : WDL[wdIdx(k)];
@@ -1006,7 +1078,7 @@ function rowHtml(r) {
   const mine = state.mine.has(s.i);
   return `<li class="dir-row" id="show:${esc(s.i)}" style="--pc:var(${PLAT_VAR[s.p]})">` +
     `<button type="button" class="star" data-star="${esc(s.i)}" aria-pressed="${mine}" aria-label="${mine ? "Remove" : "Add"} ${esc(s.t)} ${mine ? "from" : "to"} My list">${ICON.star}</button>` +
-    `<a class="dir-link" href="#show:${esc(s.i)}" data-show="${esc(s.i)}"><span class="dir-title">${esc(s.t)}</span><span class="dir-sub">${sub}</span></a>` +
+    `<a class="dir-link" href="#show:${esc(s.i)}" data-show="${esc(s.i)}">${thumbHtml(s)}<span class="dir-text"><span class="dir-title">${esc(s.t)}</span><span class="dir-sub">${sub}</span></span></a>` +
     `<span class="dir-plat">${esc(PLAT_NAME(s.p))}${(s.al || []).length ? ", " + esc(s.al.join(", ")) : ""}</span>` +
     `<span class="dir-when">${soon ? `<span class="soon">${esc(when)}</span>` : esc(when)}</span>${prog}</li>`;
 }
@@ -1073,12 +1145,12 @@ function openShow(id, opener) {
   const moreLinks = [
     s.u && !/crunchyroll\.com|netflix\.com|hulu\.com|hidive\.com|amazon\.com|disneyplus\.com/.test(s.u) ? `<a href="${esc(s.u)}" target="_blank" rel="noopener">Release times (${esc(new URL(s.u).hostname.replace(/^www\./, ""))})</a>` : "",
     `<a href="https://myanimelist.net/anime.php?q=${q}" target="_blank" rel="noopener">MyAnimeList</a>`,
-    `<a href="https://anilist.co/search/anime?search=${q}" target="_blank" rel="noopener">AniList</a>`
+    `<a href="${s.ai ? `https://anilist.co/anime/${s.ai}` : `https://anilist.co/search/anime?search=${q}`}" target="_blank" rel="noopener">AniList</a>`
   ].filter(Boolean).join("");
   dlg.innerHTML =
     `<div class="sh-top"><span class="sh-plat" style="--pc:var(${pv})"><i aria-hidden="true"></i>${esc(PLAT_NAME(s.p))}</span>` +
     `<button type="button" class="icon-btn sh-close" data-close aria-label="Close">${ICON.close}</button></div>` +
-    `<div class="sh-body"><h2 class="sh-title" id="sh-title">${esc(s.t)}</h2><p class="sh-status">${esc(statusLine)}${s.n ? `. ${esc(s.n)}` : ""}</p>` +
+    `<div class="sh-body"><div class="sh-hero">${thumbHtml(s, true)}<div><h2 class="sh-title" id="sh-title">${esc(s.t)}</h2><p class="sh-status">${esc(statusLine)}${s.n ? `. ${esc(s.n)}` : ""}</p></div></div>` +
     next +
     `<div class="sh-actions">` +
     (watch ? `<a class="btn btn-primary" href="${esc(watch)}" target="_blank" rel="noopener">${ICON.play}${s.p === "TBA" ? "Find where to watch" : "Watch on " + esc(s.p)}</a>` : "") +
@@ -1167,8 +1239,10 @@ function openSettings() {
   sel.value = state.tz;
   setDlg.querySelectorAll('input[name="clock"]').forEach(r => { r.checked = (r.value === "24") === !!state.h24; });
   $("#tz-hint").textContent = `Currently ${tzLong()}.`;
+  $("#art-toggle").checked = artOn();
   if (typeof setDlg.showModal === "function") setDlg.showModal(); else setDlg.setAttribute("open", "");
 }
+$("#art-toggle").addEventListener("change", e => { state.art = e.target.checked; store.set("art", state.art); refresh(); });
 $("#settings-form").addEventListener("submit", e => { if (typeof setDlg.close !== "function") { e.preventDefault(); setDlg.removeAttribute("open"); } });
 $("#tz-select").addEventListener("change", e => { state.tz = e.target.value; store.set("tz", state.tz); FM = null; $("#tz-hint").textContent = `Currently ${tzLong()}.`; refresh(); });
 setDlg.querySelectorAll('input[name="clock"]').forEach(r => r.addEventListener("change", () => { state.h24 = r.value === "24" && r.checked; store.set("h24", state.h24); FM = null; refresh(); }));
@@ -1195,6 +1269,7 @@ function setView(v) {
   refresh();
 }
 function refresh() {
+  document.documentElement.classList.toggle("no-art", !artOn());
   $("#tz-label").textContent = tzAbbr();
   renderFilters();
   if (state.view === "schedule") renderSchedule();

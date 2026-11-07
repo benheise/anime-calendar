@@ -2,7 +2,7 @@
 PY ?= python3
 SWEEP_DATE ?= 2026-11-06
 
-.PHONY: build check test unit verify install clean
+.PHONY: build check test unit verify install clean covers
 
 build:
 	$(PY) build_calendar.py
@@ -18,6 +18,10 @@ verify:
 	node verify.js /tmp/anime-calendar-verify.html $(SWEEP_DATE)
 
 test: unit check verify
+
+# Match new rows on AniList and measure their covers (needs network). Review what it prints.
+covers:
+	$(PY) build_calendar.py --fetch-covers
 
 install:
 	pip install -r requirements.txt

@@ -349,6 +349,7 @@ stream track).
 | `Explicit end` | Overrides the computed finale. Set it whenever a run is known to stop. |
 | `Note` | One short fact shown under the title in the show sheet ("Prime exclusive"). Not a place for hype ("Major return") or anything the page already shows (episode counts, "Now airing"). |
 | `Type / Studio` | `Kind · Studio` (e.g. `Sequel (S2) · MAPPA`). The page splits it at the last ` · ` into Series and Studio. |
+| `AniList ID` | The show's AniList entry (`anilist.co/anime/<id>`), used for cover art and the sheet's AniList link. `none` = checked, not on AniList (Dreamland, Bass X Machina). Filled by `--fetch-covers` for confident matches only; see "Cover art" below. |
 
 Episode numbers, premiere/finale tags and finale dates are all **computed** by
 `releases()` in `build_calendar.py` from these columns. Never type them into a note.
@@ -362,6 +363,50 @@ row below them (Sgt. Frog on row 149 read Q152), so the Status column in Excel w
 for over a third of the sheet. `--check` now warns on any cooldown formula that points at
 another row. After deleting a row, rewrite S/T for every row so each points at its own row
 (`=IF(Q{r}="","",Q{r}+R{r})` and the matching Status formula), then re-run `--check`.
+
+### Cover art (added Nov 6)
+
+Every slot shows the show's AniList cover behind its text. Three pieces:
+- `AniList ID` in the sheet is the **reviewed** link. `--fetch-covers` (`make covers`)
+  searches AniList for rows without one and writes the ID only when the match is
+  confident (score ≥ 0.97: exact title or synonym, right season, right year). Everything
+  else is printed for review. Type the right ID, or `none`.
+- `covers.json` is derived: image URLs, AniList's dominant colour, and `scrim`, the overlay
+  each cover needs. The build only reads it, never the network.
+- The page loads images from AniList's CDN (lazy, no referrer) and drops back to the plain
+  slot when one fails. Art can be switched off in settings and is off by default under
+  `prefers-contrast: more`.
+
+**Matching traps found on the first pass (151 rows):**
+- Long-running carryovers match specials and OVAs, not the series. *Case Closed* matched a
+  2007 OVA and *One Piece – Elbaph Arc Part 2* a 2013 special. Use the TV entry (235, 21).
+- A second cour has its own entry. *Ace of the Diamond … Cour 2* and *Elegy for the
+  Henchmen Part 2* need the Part 2 IDs (213658, 213506), not cour 1's, even though cour 1's
+  title scores higher.
+- A same-name older work isn't the show. *Dreamland* matched a 2018 film; the 2026 French
+  series isn't on AniList at all. The score penalises an old start year for a new row.
+- AniList's search misses on curly apostrophes, parenthesised alt titles ("Sgt. Frog
+  (KERORO☆)") and hyphenated romaji ("Kaiki-gumi"). `search_terms()` tries those variants.
+- AniList's English title often differs from the platform's (*Please Excuse My Younger
+  Brothers* vs Crunchyroll's *Sorry About My Little Brothers*). The sheet's `Title` stays
+  the platform's (§5); AniList is only for art.
+
+**Legibility is measured, not eyeballed.** White text on a busy cover is the risk. For each
+cover `covers.py` takes the band a slot shows (6%–72% of its height), slides a strip one
+text line tall down it, and picks the lightest ink overlay at which the brightest 2% of
+every strip still gives white text 4.5:1, plus a 3% margin. Overlays land between 0.41 and
+0.59 (median 0.58). The left edge gets 0.14 more; tags sit on solid chips.
+
+A first version measured the brightest 2% of the whole band instead. It looked fine, but a
+pixel audit of the rendered page found text lines down to 3.3:1, because a bright patch
+behind one line was diluted across the band. Measuring per strip fixed it. On Nov 6 the
+audit covered 1,569 text lines across three desktop weeks, a 1,100px laptop and a 390px phone.
+None fell under 4.5:1; the worst was 4.63:1.
+
+If you change the slot layout (padding, focus point, column widths, text sizes), the band
+and strip sizes in `covers.py` may no longer match what slots show. Re-run the audit:
+render the page in Playwright with every cover loaded, record each text line's rect, hide
+the text, and measure the 98th-percentile luminance under each rect.
 
 ### DST: stored times are EDT references
 
@@ -428,6 +473,7 @@ identity is never carried by colour alone.
 make install                               # once: pip install -r requirements.txt && npm ci
 python3 build_calendar.py --check          # validate; fix every error, read every warning
 python3 build_calendar.py --dump-airings "Title"   # what the page will show for a row
+python3 build_calendar.py --fetch-covers   # new rows: match on AniList, measure covers (review output)
 python3 build_calendar.py                  # rebuild the HTML
 make test                                  # pytest + --check + build pinned + verify.js
 ```
@@ -491,7 +537,8 @@ Rules:
 
 The HTML is fully self-contained: it embeds every release as data plus a static snapshot,
 needs no external file at runtime, and renders where scripts are blocked (iOS Quick Look).
-The only external request is Google Fonts, with system-font fallbacks.
+Its only external requests are Google Fonts and the AniList cover images, and both fall
+back gracefully (system fonts, plain slots).
 
 ---
 

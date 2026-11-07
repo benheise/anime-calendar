@@ -21,6 +21,11 @@ above, and the same file also works opened locally or sent as an attachment.
   announced, finished), with episode progress and sorting.
 - **Guide.** How to read the schedule, time zones and daylight saving time, labels,
   platforms, sources and update cadence.
+- **Cover art.** Each release shows the show's cover behind it, from AniList. The overlay
+  behind the text is measured per cover so white text keeps at least 4.5:1 contrast (WCAG AA);
+  dark covers stay vivid, bright ones get more overlay. Posters also appear in Up next, All
+  shows and the show sheet. Art can be turned off, and is off by default when the system asks
+  for more contrast. If AniList can't be reached, slots fall back to the plain design.
 - **Show sheet.** Upcoming episodes, watch link, MyAnimeList and AniList links, research
   notes, and an **Add to calendar** .ics download (RFC 5545).
 - **Filters.** Platform chips, a starred **My list**, and search, shared by every view.
@@ -50,6 +55,7 @@ instant to the viewer's time zone. All scheduling rules live in one place, the b
 | `anime-calendar-data.xlsx` | Source of record, plus research-cooldown columns |
 | `build_calendar.py` | Validates the workbook, computes releases, builds the page |
 | `calendar-template.html` | Page template: styles, platform colours, rendering |
+| `covers.py`, `covers.json` | Cover art: AniList matching and per-cover overlay measurement; the cached result the build embeds |
 | `anime-calendar-2026.html` | Built output (committed; CI checks it is current and publishes it to Pages) |
 | `tests/test_build.py` | Unit tests for the schedule model, validation and rendering |
 | `verify.js` | Runs the built page in jsdom and checks views, routing, export and placements |
@@ -73,6 +79,7 @@ python3 build_calendar.py --check
 python3 build_calendar.py --today 2026-11-06 --out /tmp/page.html   # reproducible build
 python3 build_calendar.py --dump-airings "Devils' Crest"            # every computed release
 python3 build_calendar.py --news                                    # scan Crunchyroll news
+python3 build_calendar.py --fetch-covers                            # match new rows on AniList, measure covers
 python3 build_calendar.py --new-year 2027                           # roll over to a new year
 ```
 
@@ -100,6 +107,7 @@ shape the schedule:
 | `First episode` | Starting number for the second half of a split season |
 | `Carryover` | `yes` for a series continuing from an earlier season |
 | `Also on` | A second supported platform carrying the same show |
+| `AniList ID` | The show's AniList entry (`anilist.co/anime/<id>`), for cover art and links; `none` if it isn't on AniList |
 
 ## Contributing a correction
 

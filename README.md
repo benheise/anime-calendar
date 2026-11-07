@@ -1,12 +1,14 @@
 # Anime Release Calendar
 
+**[Open the calendar](https://benheise.github.io/anime-calendar/)**
+
 A self-contained web page that shows when new anime episodes release on Crunchyroll,
 HIDIVE, Netflix, Hulu, Prime Video and Disney+ in North America, in the viewer's own
 time zone. It covers the Summer and Fall 2026 seasons, through December 31, 2026.
 
 `anime-calendar-2026.html` is the finished page: one flat file with every release
-embedded, no server and no external data. Open it in a browser, host it anywhere, or
-send it as an attachment.
+embedded, no server and no external data. It is published to GitHub Pages at the link
+above, and the same file also works opened locally or sent as an attachment.
 
 ## What the page does
 
@@ -48,7 +50,7 @@ instant to the viewer's time zone. All scheduling rules live in one place, the b
 | `anime-calendar-data.xlsx` | Source of record, plus research-cooldown columns |
 | `build_calendar.py` | Validates the workbook, computes releases, builds the page |
 | `calendar-template.html` | Page template: styles, platform colours, rendering |
-| `anime-calendar-2026.html` | Built output (committed; CI checks it is current) |
+| `anime-calendar-2026.html` | Built output (committed; CI checks it is current and publishes it to Pages) |
 | `tests/test_build.py` | Unit tests for the schedule model, validation and rendering |
 | `verify.js` | Runs the built page in jsdom and checks views, routing, export and placements |
 | `CLAUDE.md` | Operating notes for research sweeps: source hierarchy, DST rules, past failures |
@@ -73,6 +75,14 @@ python3 build_calendar.py --dump-airings "Devils' Crest"            # every comp
 python3 build_calendar.py --news                                    # scan Crunchyroll news
 python3 build_calendar.py --new-year 2027                           # roll over to a new year
 ```
+
+## Publishing
+
+Every push to `main` runs CI (`.github/workflows/ci.yml`). When it passes, the committed
+`anime-calendar-2026.html` is deployed to GitHub Pages as `index.html`, so merging a data
+update is all it takes to publish it. The page computes "now" in the viewer's browser, so
+it stays current between updates. A failing check blocks the deploy and leaves the last
+good version live.
 
 ## Workbook columns
 

@@ -64,6 +64,7 @@ const dom = new JSDOM(html, {
 const win = dom.window, doc = win.document;
 const $ = s => doc.querySelector(s), $$ = s => [...doc.querySelectorAll(s)];
 const go = async hash => { win.location.hash = hash; await sleep(30); };
+const isOpen = d => !!(d && (d.open || d.hasAttribute('open')));
 const click = async sel => { const el = typeof sel === 'string' ? $(sel) : sel; el.click(); await sleep(10); };
 
 // Week as {Mon: [{time, title, meta}], ...}
@@ -248,6 +249,41 @@ const anywhere = (w, title) => Object.keys(w).some(k => Array.isArray(w[k]) && f
   ok(!$('#guide').hidden && $('#filters').parentElement.hidden, 'guide shown without the filter bar');
   await go('#g-time');
   ok(!$('#guide').hidden, 'contents links open the guide');
+
+  // ---- embedded previews (file viewers, mail apps)
+  // Inside an iframe built from the file's contents, a bare "#view" link resolves against
+  // the HOST page and navigates the preview away, and history.pushState throws. So every
+  // in-page link must be handled in script (default prevented), views must switch without
+  // waiting for hashchange, and nothing may depend on the URL actually changing.
+  section('embedded preview safety');
+  await go('#schedule');
+  const cancelled = el => { const ev = new win.MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }); el.dispatchEvent(ev); return ev.defaultPrevented; };
+  const linkKinds = {
+    'tab': '#tab-shows', 'brand': '.brand', 'footer link': '.foot a[href="#guide"]', 'skip link': '.skip',
+    'schedule entry': '#week-wrap a.ep-btn', 'Next up card': '#nextup a.nu', 'guide contents': '.toc a',
+  };
+  for (const [kind, sel] of Object.entries(linkKinds)) {
+    const el = $(sel);
+    ok(el && cancelled(el), `${kind} click is handled in script, not by the browser`);
+    if (isOpen($('#detail'))) await click('#detail [data-close]');
+    await go('#schedule');
+  }
+  $('#tab-upcoming').click();
+  ok(!$('#upcoming').hidden && $('#schedule').hidden, 'a tab switches views immediately, without waiting for hashchange');
+  $('#tab-schedule').click();
+  const realPush = win.history.pushState, realReplace = win.history.replaceState;
+  win.history.pushState = win.history.replaceState = () => { throw new win.DOMException('Blocked in sandboxed preview', 'SecurityError'); };
+  const errsBefore = errors.length;
+  $('#tab-guide').click();
+  ok(!$('#guide').hidden, 'tabs still work when the browser refuses URL changes');
+  $('#tab-shows').click();
+  $('#dir-wrap a.dir-link').click();
+  ok(isOpen($('#detail')) && !$('#shows').hidden, 'show sheet still opens when the browser refuses URL changes');
+  $('#detail [data-close]').click();
+  ok(!isOpen($('#detail')), 'and closes');
+  ok(errors.length === errsBefore, 'no errors when history changes are refused');
+  win.history.pushState = realPush; win.history.replaceState = realReplace;
+  $('#tab-schedule').click();
 
   ok(errors.length === 0, 'no script errors after interaction: ' + errors.join(' | '));
   console.log(`\n${passes} passed, ${fails} failed`);

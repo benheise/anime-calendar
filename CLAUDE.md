@@ -467,6 +467,25 @@ Always run the jsdom check before shipping. It has caught real bugs that `--chec
 see — a DST shift silently moving a Netflix batch drop to 2:00 AM, duplicate tabs, and
 finished shows still appearing on the grid.
 
+### The page must work inside an embedded preview
+
+Ben opens the file in the app's file viewer, which shows it in an iframe built from the
+file's contents (`about:srcdoc`). On the first redesign build, Up next, All shows and Guide
+did nothing there. In a srcdoc frame a bare `href="#upcoming"` resolves against the
+**host** page's URL, so each tab click navigated the frame away to a blank page, and
+`history.pushState` throws a SecurityError. The tests never saw it because they ran the page
+top-level and drove it by setting `location.hash`.
+
+Rules:
+- Every `href="#…"` link is handled by the document click handler (`go()`), with the
+  default prevented. Don't add a link the handler doesn't route.
+- `setUrl()` wraps every history call in try/catch. Views never depend on the URL changing,
+  and `route(hash)` takes the hash as an argument rather than reading `location`.
+- The "embedded preview safety" section of `verify.js` checks both: link clicks are
+  cancelled, and tabs and the show sheet still work while `pushState` throws. For a real
+  browser check, load the page in Playwright inside `<iframe sandbox="allow-scripts"
+  srcdoc="…">` and click through every tab and a show.
+
 The HTML is fully self-contained: it embeds every release as data plus a static snapshot,
 needs no external file at runtime, and renders where scripts are blocked (iOS Quick Look).
 The only external request is Google Fonts, with system-font fallbacks.

@@ -42,6 +42,8 @@ section('static fallback (scripts off)');
   const ids = new Set([...rows].map(r => r.id));
   const dangling = [...d.querySelectorAll('#week-wrap a.ep-btn')].filter(a => !ids.has(a.getAttribute('href').slice(1)));
   ok(dangling.length === 0, `static entries link to directory rows (${dangling.length} dangling)`);
+  const staticArt = d.querySelectorAll('#week-wrap li.ep.has-art img.ep-art');
+  ok(staticArt.length > 20, `static snapshot carries cover art (${staticArt.length} slots)`);
 }
 
 // ---------------------------------------------------------------- 2. scripted page
@@ -249,6 +251,43 @@ const anywhere = (w, title) => Object.keys(w).some(k => Array.isArray(w[k]) && f
   ok(!$('#guide').hidden && $('#filters').parentElement.hidden, 'guide shown without the filter bar');
   await go('#g-time');
   ok(!$('#guide').hidden, 'contents links open the guide');
+
+  // ---- cover art
+  section('cover art');
+  await go('#schedule');
+  const artSlots = $$('#week-wrap li.ep.has-art');
+  ok(artSlots.length > 40, `most slots carry cover art (${artSlots.length})`);
+  ok(artSlots.every(li => /--scrim:0\.\d+/.test(li.getAttribute('style'))), 'every art slot carries its measured overlay strength');
+  ok(artSlots.every(li => { const im = li.querySelector('img.ep-art'); return im && im.getAttribute('alt') === '' && im.getAttribute('referrerpolicy') === 'no-referrer' && im.getAttribute('loading') === 'lazy'; }),
+     'art images are decorative, lazy, and send no referrer');
+  const scrims = artSlots.map(li => Number(li.getAttribute('style').match(/--scrim:([\d.]+)/)[1]));
+  ok(scrims.every(v => v >= 0.4 && v <= 0.85), `overlays within 0.40–0.85 (${Math.min(...scrims)}–${Math.max(...scrims)})`);
+  ok(!find(week().Tue, 'Bass X Machina') || !$$('#week-wrap li.ep').find(li => text(li.querySelector('.ep-title')) === 'Bass X Machina').classList.contains('has-art'),
+     'a show with no AniList entry keeps the plain slot');
+  const victim = artSlots.find(li => text(li.querySelector('.ep-title')) === 'A Certain Dark Item');
+  victim.querySelector('img.ep-art').dispatchEvent(new win.Event('error'));
+  ok(!victim.classList.contains('has-art') && !victim.querySelector('img'), 'an image that fails to load falls back to the plain slot');
+  await click('#wk-next'); await click('#wk-today');
+  const again = $$('#week-wrap li.ep').find(li => text(li.querySelector('.ep-title')) === 'A Certain Dark Item');
+  ok(again && !again.classList.contains('has-art'), 'a failed image is not retried on re-render');
+  await click('#tz-btn');
+  const artToggle = $('#art-toggle');
+  ok(artToggle.checked, 'cover art is on by default');
+  artToggle.checked = false; artToggle.dispatchEvent(new win.Event('change')); await sleep(10);
+  ok(doc.documentElement.classList.contains('no-art'), 'turning art off switches the page to plain slots');
+  artToggle.checked = true; artToggle.dispatchEvent(new win.Event('change')); await sleep(10);
+  ok(!doc.documentElement.classList.contains('no-art'), 'and back on');
+  await go('#show:devils-crest');
+  ok($('#detail .sh-hero .thumb.lg img'), 'show sheet leads with the cover');
+  const al = [...doc.querySelectorAll('#detail .links a')].find(a => text(a) === 'AniList');
+  ok(al && /^https:\/\/anilist\.co\/anime\/\d+$/.test(al.href), `AniList link goes straight to the show (${al && al.href})`);
+  await click('#detail [data-close]');
+  await go('#upcoming');
+  ok($$('#agenda .ag .thumb img').length > 5, 'Up next rows show poster thumbnails');
+  await go('#shows');
+  ok($$('#dir-wrap .dir-row .thumb img').length > 100, 'All shows rows show poster thumbnails');
+  await go('#guide');
+  ok(/AniList/.test(text($('#guide'))), 'Guide credits AniList for cover art');
 
   // ---- embedded previews (file viewers, mail apps)
   // Inside an iframe built from the file's contents, a bare "#view" link resolves against

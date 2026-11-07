@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 build_calendar.py — build the self-contained anime release calendar from the xlsx data store.
+Cover art comes from covers.json (see covers.py); the build itself never uses the network.
 
 Usage
 -----
@@ -113,7 +114,7 @@ REQUIRED_COLS = ["Title", "Platform", "Schedule", "Time (ET)", "US-anchored", "T
 # The research-cooldown columns are read too: they don't affect the page, but audit scripts
 # that read intervals through read_rows() got None when they were left out.
 OPTIONAL_COLS = ["Skip dates", "Extra dates", "Double dates", "First episode", "Carryover",
-                 "Also on", "Time confirmed", "Check Interval (days)", "Why this interval"]
+                 "Also on", "Time confirmed", "Check Interval (days)", "Why this interval", "AniList ID"]
 
 
 # ---------------------------------------------------------------- reading
@@ -538,8 +539,52 @@ def genre_list(value):
     return ", ".join(parts) or None
 
 
-def build_payload(rows, year, today):
-    """Everything the page needs, as one JSON-able dict."""
+def anilist_id(r):
+    """The row's AniList ID as a string, or None (blank, or 'none' = checked, not listed)."""
+    v = str(r.get("AniList ID") or "").strip()
+    v = v[:-2] if v.endswith(".0") else v
+    return v if v.isdigit() else None
+
+
+def load_art(data_path):
+    """covers.json beside the workbook (written by --fetch-covers), or {} if absent."""
+    p = Path(data_path).with_name("covers.json")
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+
+
+def art_fields(r, art):
+    """Payload fields for a row's cover: AniList id, image URLs, overlay strength, tone."""
+    mid = anilist_id(r)
+    if not mid:
+        return {}
+    e = (art or {}).get(mid) or {}
+    out = {"ai": int(mid)}
+    if e.get("scrim") is not None and (e.get("large") or e.get("xl")):
+        out.update({"im": e.get("large") or e.get("xl"), "ix": e.get("xl"), "sa": e["scrim"],
+                    "ic": e.get("color")})
+    return out
+
+
+def check_covers(rows, art):
+    """Warnings for rows whose cover art is missing or stale. Never errors: art is optional."""
+    out = []
+    for r in rows:
+        v = str(r.get("AniList ID") or "").strip()
+        v = v[:-2] if v.endswith(".0") else v
+        if not v:
+            out.append(f"{r['Title']}: no AniList ID — run --fetch-covers, or type 'none' if it isn't on AniList")
+        elif v.lower() not in ("none", "-", "n/a") and not v.isdigit():
+            out.append(f"{r['Title']}: AniList ID {v!r} is not a number (or 'none')")
+        elif v.isdigit() and v not in art:
+            out.append(f"{r['Title']}: AniList {v} is not in covers.json — run --fetch-covers")
+    return out
+
+
+def build_payload(rows, year, today, art=None):
+    """Everything the page needs, as one JSON-able dict. `art` is covers.json's content."""
     win_start, win_end = window(rows, year)
     shows, airs, taken = [], [], set()
     for i, r in enumerate(rows):
@@ -558,6 +603,7 @@ def build_payload(rows, year, today):
                "fin": fin.isoformat() if fin else None,
                "w": r["Schedule"] if w["kind"] == "undated" else None,
                "num": 1 if is_numbered(r) else 0}
+        opt.update(art_fields(r, art))
         s.update({k: v for k, v in opt.items() if v})
         shows.append(s)
         for x in rel:
@@ -622,17 +668,29 @@ def tags_html(flags, eps=None):
     return "".join(out)
 
 
+def art_attrs(show):
+    """(class, style, <img>) for a slot with cover art; mirrors artBits() in the template."""
+    if not show.get("im"):
+        return "", "", ""
+    tone = show.get("ic") or "#2a2142"
+    srcset = f' srcset="{esc(show["im"])} 230w, {esc(show["ix"])} 460w" sizes="(max-width:1023px) 100vw, 13vw"' if show.get("ix") else ""
+    img = (f'<img class="ep-art" src="{esc(show["im"])}"{srcset} alt="" loading="lazy" '
+           f'decoding="async" referrerpolicy="no-referrer">')
+    return " has-art", f";--scrim:{show['sa']};--tone:{esc(tone)}", img
+
+
 def entry_html(show, x_time, a, b, flags, past=False):
     p = show["p"]
     pv = PLAT_VAR.get(p, "--tba")
+    acls, astyle, aimg = art_attrs(show)
     ep = ep_label(a, b)
     tm = x_time or "Time TBA"
     meta = "".join(filter(None, [
         f'<span class="ep-num">{esc(ep)}</span>' if ep else "",
         f'<span class="ep-plat">{esc(PLAT_SHORT.get(p, p))}</span>',
         tags_html(flags, show.get("e"))]))
-    return (f'<li class="ep{" is-past" if past else ""}" style="--pc:var({pv})">'
-            f'<a class="ep-btn" href="#show:{esc(show["i"])}">'
+    return (f'<li class="ep{" is-past" if past else ""}{acls}" style="--pc:var({pv}){astyle}">'
+            f'<a class="ep-btn" href="#show:{esc(show["i"])}">{aimg}'
             f'<span class="ep-time{"" if x_time else " tba"}">{esc(tm)}</span>'
             f'<span class="ep-title">{esc(show["t"])}</span>'
             f'<span class="ep-meta">{meta}</span></a></li>')
@@ -751,9 +809,9 @@ def row_html(payload, si, st, nxt):
         sched = "Finished"
     sub = "".join(f'<span>{esc(x)}</span>' for x in (show.get("ty"), show.get("g")) if x)
     return (f'<li class="dir-row" id="show:{esc(show["i"])}" style="--pc:var({pv})">'
-            f'<a class="dir-link" href="#show:{esc(show["i"])}">'
+            f'<a class="dir-link" href="#show:{esc(show["i"])}"><span class="dir-text">'
             f'<span class="dir-title">{esc(show["t"])}</span>'
-            f'<span class="dir-sub">{sub}</span></a>'
+            f'<span class="dir-sub">{sub}</span></span></a>'
             f'<span class="dir-plat">{esc(PLAT_SHORT.get(show["p"], show["p"]))}</span>'
             f'<span class="dir-when">{esc(sched)}</span></li>')
 
@@ -766,8 +824,8 @@ TOKENS = ["/*<<PAYLOAD>>*/", "<!--<<STATIC_WEEK>>-->", "<!--<<STATIC_WEEK_RANGE>
           "<!--<<BUILT>>-->", "<!--<<BUILT_ISO>>-->", "<!--<<COUNT>>-->"]
 
 
-def render(rows, template_text, year, today):
-    payload = build_payload(rows, year, today)
+def render(rows, template_text, year, today, art=None):
+    payload = build_payload(rows, year, today, art)
     for token in TOKENS:
         if token not in template_text:
             sys.exit(f"template is missing the {token} placeholder")
@@ -799,7 +857,8 @@ def build(data_path, template_path, out_path, year, today):
             print(f"  ERROR: {e}")
         sys.exit(1)
     tpl = Path(template_path).read_text(encoding="utf-8")
-    out, payload = render(rows, tpl, year, today)
+    art = load_art(data_path)
+    out, payload = render(rows, tpl, year, today, art)
     Path(out_path).write_text(out, encoding="utf-8")
     kinds = {}
     for r in rows:
@@ -809,7 +868,7 @@ def build(data_path, template_path, out_path, year, today):
     print(f"  {len(rows)} titles · {len(payload['airs'])} releases · "
           f"{round(len(out) / 1024, 1)} KB · {payload['label']}")
     print(f"  schedule kinds: {kinds}")
-    print("  self-contained: no external data file needed at runtime")
+    print(f"  self-contained: no external data file needed at runtime; {sum(1 for s in payload['shows'] if s.get('im'))} covers load from AniList when reachable")
 
 
 def dump_airings(rows, year, title):
@@ -1044,6 +1103,10 @@ def main(argv=None):
     ap.add_argument("--news-days", type=int, default=21, metavar="N",
                     help="how far back to scan with --news (default 21)")
     ap.add_argument("--news-url", default=CR_NEWS_RSS, help="override the news feed URL")
+    ap.add_argument("--fetch-covers", action="store_true",
+                    help="match new rows on AniList and cache their covers in covers.json")
+    ap.add_argument("--refresh", action="store_true",
+                    help="with --fetch-covers: re-download and re-measure every cover")
     a = ap.parse_args(argv)
 
     today = a.today or datetime.date.today()
@@ -1063,10 +1126,19 @@ def main(argv=None):
     if a.dump_airings:
         dump_airings(read_rows(data), year, a.dump_airings)
         return
+    if a.fetch_covers:
+        import covers
+        review = covers.run(data, year, refresh=a.refresh)
+        for title, mid, why in review:
+            print(f"  review: {title!r} (best guess {mid}): {why}")
+        print("covers.json updated." + (f" {len(review)} row(s) need an AniList ID typed in by hand "
+              "(or 'none' if the show isn't on AniList)." if review else ""))
+        return
     if a.check:
         rows = read_rows(data)
         errors, warnings = validate(rows, year)
         warnings += check_formulas(data)
+        warnings += check_covers(rows, load_art(data))
         print(f"checked {len(rows)} rows for season year {year}")
         for w in warnings:
             print(f"  warning: {w}")

@@ -1,5 +1,19 @@
 {
-  "dependencies": {
+  "name": "anime-calendar",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Self-contained anime release calendar for North American streaming",
+  "license": "MIT",
+  "scripts": {
+    "build": "python3 build_calendar.py",
+    "check": "python3 build_calendar.py --check",
+    "verify": "node verify.js",
+    "test": "python3 -m pytest -q && python3 build_calendar.py --check && python3 build_calendar.py --today 2026-11-06 --out /tmp/anime-calendar-verify.html && node verify.js /tmp/anime-calendar-verify.html 2026-11-06"
+  },
+  "engines": {
+    "node": ">=22.22"
+  },
+  "devDependencies": {
     "jsdom": "^31.0.0"
   }
 }

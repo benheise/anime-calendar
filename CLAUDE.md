@@ -24,7 +24,7 @@ For each fact, prefer in this order. Do not stop at the first source that answer
 | Streaming time, non-CR | The platform's own lineup post | AnimeSchedule tracks CR sub times best |
 | Premiere date | The platform's own lineup announcement | Aggregator dates can be the JST date, a day off |
 | Episode count | ANN / Wikipedia episode list | "Expected to have N" ≠ confirmed |
-| Whether it ended | Wikipedia episode list, LiveChart status | "Continuing" rows run forever if unchecked |
+| Whether it ended | Wikipedia episode list, LiveChart status | Carryover rows run forever if unchecked |
 | Day of week | Compute it from the date yourself | AnimeSchedule's weekday labels are often wrong |
 
 **Verify any day-of-week claim by computing it from the date.** AnimeSchedule has labelled
@@ -295,10 +295,11 @@ searching for it still finds the row.
 Saturday grid for three weeks. Any JP morning slot lands on the previous evening in ET —
 compute the ET date from the JST time; never copy the JST weekday.
 
-### "Continuing" rows end silently
+### Carryover rows end silently
 Three shows had finished weeks earlier and were still projecting episodes: *The Drops of
 God* (ended Sep 18), *The Classroom of a Black Cat and a Witch* (Sep 20), *Liar Game*
-(Sep 28). Any `Continuing` row with no `Explicit end` needs a periodic liveness check.
+(Sep 28). Any `Carryover` row with no `Explicit end` needs a periodic liveness check
+(these were `Platform = Continuing` rows before Nov 6; see §7).
 It happened again on Nov 6: *MAO* ended Sep 26 (26 eps) and was still projecting six weeks
 later. Its caveat said "cour 2 confirmed airing (ending-theme MV released Sep 26)". An MV
 on the finale date is a finale signal, not proof the show continues.
@@ -335,12 +336,23 @@ stream track).
 
 | Column | Meaning |
 |---|---|
-| `Schedule` | `Wed · Jul 8` dated · `Saturdays` weekly · `Fall 2026` undated · `Released Jun 19` past one-off · `All at once · Oct 20` scheduled batch drop |
+| `Platform` | One of Crunchyroll, HIDIVE, Netflix, Hulu, Prime Video, Disney+, TBA. **`Continuing` is retired** (Nov 6): it hid where a show streams. Put the real platform here and `yes` in `Carryover`. `--check` errors on it. |
+| `Schedule` | `Wed · Jul 8` dated · `Saturdays` weekly · `Fall 2026` undated · `Released Jun 19` past one-off · `All at once · Oct 20` scheduled batch drop (always tagged "All episodes", count or not) |
 | `Skip dates` | ISO dates the show does NOT air. Each pushes the finale a week later. |
 | `Extra dates` | ISO dates it airs OUTSIDE its weekly slot (early premiere). Each comes out of the run's total. |
+| `Double dates` | ISO release dates that carry two episodes (two-episode premiere). Each counts 2 toward `Episodes`, so the run ends a week sooner. Replaces the old "Two-episode premiere" note. |
+| `First episode` | Starting episode number. Needed only for the second half of a split season (`Part 2`, `Cour 2`, `final part`, `Continuing cour` in `Type / Studio`), whose numbers are otherwise hidden because they may continue the first half's count. |
+| `Carryover` | `yes` for a series running in from an earlier season. Carryover rows show no episode numbers and no Premiere tag. |
+| `Also on` | A second supported platform carrying the same show (comma list). The platform filter matches it too. |
 | `US-anchored` | `yes` for US-clock drops (Netflix midnight PT) so they don't shift at DST |
 | `Time confirmed` | `yes` only when verified against an observed release or a first-party platform listing |
 | `Explicit end` | Overrides the computed finale. Set it whenever a run is known to stop. |
+| `Note` | One short fact shown under the title in the show sheet ("Prime exclusive"). Not a place for hype ("Major return") or anything the page already shows (episode counts, "Now airing"). |
+| `Type / Studio` | `Kind · Studio` (e.g. `Sequel (S2) · MAPPA`). The page splits it at the last ` · ` into Series and Studio. |
+
+Episode numbers, premiere/finale tags and finale dates are all **computed** by
+`releases()` in `build_calendar.py` from these columns. Never type them into a note.
+`--dump-airings "Title"` prints exactly what the page will show for a row.
 
 `Shows!W1` holds "today" for the Status formulas — **not U1**, whatever older docs say.
 
@@ -383,7 +395,7 @@ LuluttoLilly Cour 2 streams there and was removed Oct 23.
 
 ### Platform colours are validated — don't hand-edit them
 
-The eight `--cr/--hidive/…` vars at the top of `calendar-template.html` were chosen with
+The `--cr/--hidive/…` vars at the top of `calendar-template.html` were chosen with
 the dataviz skill's `scripts/validate_palette.js` against the card surface `#211934`,
 not by eye. Ben reported HIDIVE and Prime as hard to tell apart; the measurement found
 the real problem was **three blues** (HIDIVE cyan, Prime blue, Disney+ light blue) with a
@@ -398,6 +410,10 @@ Two deviations are deliberate and should stay: `--tba` is near-neutral because i
 and cr/hulu/cont sit above the strict dark lightness band because the brighter steps
 measurably separate better while still clearing 3:1 contrast.
 
+When `Continuing` was retired (Nov 6), its validated amber `#ffc24b` became `--live`, the
+page's single accent for now, next and today. It is never a platform colour, so no
+platform is identified by it; it was already measured against all seven platform hues.
+
 If you change any platform colour, re-run the validator on all eight and check the
 all-pairs normal-vision floor — a single "nicer" hue can collapse a pair. Note the
 method's own limit: with 8 slots **no ordering passes all-pairs CVD**, which is fine
@@ -409,23 +425,51 @@ identity is never carried by colour alone.
 ## 8. Workflow
 
 ```
+make install                               # once: pip install -r requirements.txt && npm ci
 python3 build_calendar.py --check          # validate; fix every error, read every warning
+python3 build_calendar.py --dump-airings "Title"   # what the page will show for a row
 python3 build_calendar.py                  # rebuild the HTML
-npm install                                # once: installs jsdom for verify.js
-node verify.js [html] [YYYY-MM-DD]         # jsdom: pins "today", walks the weekly view
+make test                                  # pytest + --check + build pinned + verify.js
 ```
 
-`verify.js` (rebuilt Nov 6) pins the clock, checks the no-JS static fallback, then asserts
-specific placements: the right weekday and the displayed ET time for every row changed in
-the sweep, plus finished shows being absent. Add an assertion for each row a sweep changes.
-Weeks run **Mon–Sun**, so Nov 2–8 is one week.
+### Architecture (since the Nov 6 redesign)
+
+The build owns every scheduling rule. `releases()` turns each row into a list of releases —
+ET date, exact UTC instant (or a date when the time is TBA), episode range, flags — and
+`build_payload()` embeds them as `PAYLOAD` in the page. The page has **no schedule logic**:
+it converts instants to the viewer's time zone with `Intl` and groups them by local day and
+hour. Before Nov 6 the rules existed twice (Python validation, JS rendering) and drifted.
+If a placement is wrong, fix `releases()` or the data, never the template.
+
+The page has four views — Schedule (hour-banded week), Up next, All shows, Guide — plus a
+show sheet with an .ics export. The no-JS fallback (`static_week()`, `static_shows()`) is a
+snapshot in ET of the build week, so `--today` decides what Quick Look shows.
+
+### Tests
+
+- `tests/test_build.py` — unit tests on synthetic rows: skips, extras, doubles, multi-day,
+  batch drops, carryovers, mid-cour numbering, DST in both anchoring modes, midnight
+  crossings, validation messages, formula checks, rendering. Add a test when `releases()`
+  or `validate()` changes. They don't depend on the sheet's data, except one test that
+  the live sheet validates.
+- `verify.js` — runs the built page in jsdom with the clock pinned to 10:00 AM ET on the
+  sweep date and `TZ=America/New_York`. Checks the no-JS fallback, views and routing,
+  filters, search, My list, the show sheet, settings (Tokyo, 24-hour), .ics format (CRLF,
+  75-octet folding, UIDs), then **sweep placements**: the right weekday and displayed ET
+  time for every row a sweep changed, plus finished shows being absent. Add an assertion
+  for each row a sweep changes and bump `SWEEP_DATE` in the Makefile and `ci.yml`.
+  Weeks run **Mon–Sun**, so Nov 2–8 is one week.
+- CI (`.github/workflows/ci.yml`) runs all of it on every push and PR, and fails if the
+  committed `anime-calendar-2026.html` is not what the workbook and template build.
+  Commit the rebuilt page with every data change.
 
 Always run the jsdom check before shipping. It has caught real bugs that `--check` cannot
 see — a DST shift silently moving a Netflix batch drop to 2:00 AM, duplicate tabs, and
 finished shows still appearing on the grid.
 
-The HTML is fully self-contained: it embeds every show as static markup plus JS, needs no
-external file at runtime, and renders where scripts are blocked (iOS Quick Look).
+The HTML is fully self-contained: it embeds every release as data plus a static snapshot,
+needs no external file at runtime, and renders where scripts are blocked (iOS Quick Look).
+The only external request is Google Fonts, with system-font fallbacks.
 
 ---
 

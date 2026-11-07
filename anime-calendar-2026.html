@@ -97,6 +97,7 @@ button{cursor:pointer}
 
 /* ── Panels ─────────────────────────────────────────────────────────────── */
 main{padding-bottom:48px}
+main:focus{outline:none}
 .panel{padding-top:10px}
 .panel-h{font-size:26px; line-height:1.15; font-weight:750; letter-spacing:-.015em; margin:14px 0 4px}
 .panel-sub{color:var(--muted); margin:0 0 18px; max-width:70ch}
@@ -442,7 +443,7 @@ fieldset.field{border:0; padding:0; margin:0 0 16px}
 </div>
 <p class="sr-only" id="live" aria-live="polite"></p>
 
-<main id="main" class="wrap">
+<main id="main" class="wrap" tabindex="-1">
   <p class="print-title" aria-hidden="true">Anime Release Calendar, Summer &amp; Fall 2026</p>
 
   <!-- Schedule -->
@@ -1083,7 +1084,7 @@ function openShow(id, opener) {
     (watch ? `<a class="btn btn-primary" href="${esc(watch)}" target="_blank" rel="noopener">${ICON.play}${s.p === "TBA" ? "Find where to watch" : "Watch on " + esc(s.p)}</a>` : "") +
     (hasFuture ? `<button type="button" class="btn" data-ics="${esc(s.i)}">${ICON.cal}Add to calendar</button>` : "") +
     `<button type="button" class="btn" data-star="${esc(s.i)}" aria-pressed="${mine}">${ICON.star}<span>${mine ? "In My list" : "Add to My list"}</span></button>` +
-    `<button type="button" class="btn" data-copy="${esc(s.i)}">${ICON.link}Copy link</button></div>` +
+    (LINKABLE ? `<button type="button" class="btn" data-copy="${esc(s.i)}">${ICON.link}Copy link</button>` : "") + `</div>` +
     `<dl class="facts">${facts.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` +
     (s.s ? `<h3 class="sh-h">Story</h3><p class="syn">${esc(s.s)}</p>` : "") +
     relHtml +
@@ -1099,7 +1100,7 @@ function closeShow() {
   else if (dlg.hasAttribute("open")) { dlg.removeAttribute("open"); dlg.dispatchEvent(new Event("close")); }
 }
 dlg.addEventListener("close", () => {
-  if (location.hash.startsWith("#show:")) history.replaceState(null, "", "#" + state.view);
+  if (location.hash.startsWith("#show:")) setUrl("#" + state.view, false);
   const o = dlg._opener; if (o && document.contains(o) && o.focus) o.focus();
 });
 dlg.addEventListener("click", e => { if (e.target === dlg) closeShow(); });
@@ -1200,12 +1201,33 @@ function refresh() {
   else if (state.view === "upcoming") renderUpcoming();
   else if (state.view === "shows") renderShows();
 }
-function route() {
-  const h = decodeURIComponent(location.hash.slice(1));
+/* In-page navigation. Every "#…" link is handled here, not by the browser: inside an
+   embedded preview (an iframe built from the file's contents, as file viewers and mail
+   apps do) a bare "#view" link resolves against the host page and navigates the preview
+   away to a blank page. Updating the address bar is best-effort for the same reason —
+   sandboxed previews refuse history changes — so views never depend on it. */
+const BASE = location.href.split("#")[0];
+const LINKABLE = /^(https?|file):$/.test(location.protocol);
+function setUrl(hash, push) {
+  try { history[push ? "pushState" : "replaceState"](null, "", BASE + hash); }
+  catch (e) { /* sandboxed preview: the URL can't change, the view still does */ }
+}
+function go(hash, opener) {
+  setUrl(hash, true);
+  route(hash, opener);
+}
+function route(hash, opener) {
+  let h = String(hash || "").replace(/^#/, "");
+  try { h = decodeURIComponent(h); } catch (e) { /* malformed escape: use as is */ }
   if (h.startsWith("show:")) {
     if (!rendered) setView(state.view);
-    openShow(h.slice(5));
+    openShow(h.slice(5), opener);
     return;
+  }
+  const plain = h.split(":")[0];
+  if (h && !VIEWS.includes(plain) && !/^g-/.test(h)) {   // a plain anchor, e.g. the skip link
+    const el = document.getElementById(h);
+    if (el) { if (!rendered) setView(state.view); if (el.scrollIntoView) el.scrollIntoView(); if (el.focus) el.focus({preventScroll: true}); return; }
   }
   if (/^g-/.test(h)) { if (isOpen(dlg)) closeShow(); setView("guide"); const el = document.getElementById(h); if (el && el.scrollIntoView) el.scrollIntoView(); return; }
   const [v, arg] = h.split(":");
@@ -1221,8 +1243,8 @@ function route() {
   if (changed) window.scrollTo(0, 0);
 }
 let rendered = false;
-window.addEventListener("hashchange", route);
-if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+window.addEventListener("hashchange", () => route(location.hash));   // Back/Forward, typed URLs
+try { if ("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch (e) { /* preview */ }
 window.addEventListener("load", () => { if (!/^#(g-|show:)/.test(location.hash)) window.scrollTo(0, 0); });
 
 /* ── Events ────────────────────────────────────────────────────────────── */
@@ -1265,10 +1287,12 @@ document.addEventListener("click", e => {
     return;
   }
   if (t.dataset.close !== undefined) { closeShow(); return; }
-  if (t.dataset.show) {           // open the sheet without leaving the current view
-    e.preventDefault();
-    history.pushState(null, "", "#show:" + t.dataset.show);
-    openShow(t.dataset.show, t);
+  if (t.tagName === "A") {        // tabs, show links, guide contents, skip link
+    const href = t.getAttribute("href") || "";
+    if (href.charAt(0) === "#" && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+      e.preventDefault();
+      go(href, t);
+    }
     return;
   }
   if (t.dataset.status) { state.status = t.dataset.status; store.set("status", state.status); renderShows(); return; }
@@ -1284,7 +1308,7 @@ $("#q").addEventListener("input", e => {
   clearTimeout(qTimer);
   qTimer = setTimeout(() => {
     state.q = e.target.value.trim().toLowerCase();
-    if (state.q && state.view === "guide") { location.hash = "shows"; return; }
+    if (state.q && state.view === "guide") { go("#shows"); return; }
     refresh();
   }, 120);
 });
@@ -1319,7 +1343,7 @@ setInterval(() => {
 }, 30e3);
 
 /* ── Start ─────────────────────────────────────────────────────────────── */
-route();
+route(location.hash);
 rendered = true;
 })();
 </script>

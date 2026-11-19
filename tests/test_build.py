@@ -84,6 +84,23 @@ def test_double_episode_date_covers_two_episodes():
     assert len(out) == 11 and out[-1]["b"] == 12
 
 
+def test_double_date_with_count_posts_a_backlog():
+    # A mid-season pickup posting episodes 1-6 at once (Suikoden: The Anime, Nov 10).
+    out = rel(row(Schedule="Tue · Nov 10", Episodes=10, Count_confirmed="yes",
+                  Double_dates="2026-11-10:6"))
+    assert (out[0]["day"], out[0]["a"], out[0]["b"]) == (D(Y, 11, 10), 1, 6)
+    assert (out[1]["day"], out[1]["a"], out[1]["b"]) == (D(Y, 11, 17), 7, 7)
+    assert len(out) == 5 and out[-1]["b"] == 10 and out[-1]["day"] == D(Y, 12, 8)
+
+
+def test_parse_multi_reads_bare_and_counted_dates():
+    assert bc.parse_multi("2026-10-03, 2026-11-10:6") == {"2026-10-03": 2, "2026-11-10": 6}
+    assert bc.parse_multi("2026-11-10 x 4; 2026-12-01") == {"2026-11-10": 4, "2026-12-01": 2}
+    assert bc.parse_multi(dt.datetime(2026, 10, 3)) == {"2026-10-03": 2}
+    assert bc.parse_multi("2026-10-03:1, nonsense") == {}      # 1 is not a double; junk dropped
+    assert bc.parse_multi("") == {} and bc.parse_multi(None) == {}
+
+
 def test_explicit_end_overrides_the_count():
     out = rel(row(Episodes=24, Explicit_end="2026-11-13"))
     assert out[-1]["day"] == D(Y, 11, 13)

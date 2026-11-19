@@ -1,6 +1,6 @@
 // End-to-end check of the built calendar in jsdom.
 //
-//   node verify.js [html] [YYYY-MM-DD]      (default: anime-calendar-2026.html, 2026-11-06)
+//   node verify.js [html] [YYYY-MM-DD]      (default: anime-calendar-2026.html, 2026-11-19)
 //
 // Runs the page with the clock pinned to 10:00 AM US Eastern on the given day, then checks:
 //   1. the no-JS fallback (what iOS Quick Look shows): static week, directory, guide;
@@ -13,7 +13,7 @@ const fs = require('fs');
 const { JSDOM, VirtualConsole } = require('jsdom');
 
 const file = process.argv[2] || 'anime-calendar-2026.html';
-const todayIso = process.argv[3] || '2026-11-06';
+const todayIso = process.argv[3] || '2026-11-19';
 const html = fs.readFileSync(file, 'utf8');
 
 let fails = 0, passes = 0;
@@ -91,61 +91,110 @@ const anywhere = (w, title) => Object.keys(w).some(k => Array.isArray(w[k]) && f
   ok(text($('#tz-label')) === 'EST', `time zone label reads EST (got ${text($('#tz-label'))})`);
   ok($$('#filters .chip[data-plat]').length === 1 + JSON.parse(html.match(/"platforms":(\[[^\]]*\])/)[1]).length, 'one chip per platform plus All');
 
-  // ---- this week
+  // ---- this week (clock pinned to Thu Nov 19, 10:00 AM ET)
   section(`this week`);
   let w = week();
+  const ep = (day, title, n) => { const e = find(day, title); return !!e && new RegExp(`Ep ${n}(?![\\d–])`).test(e.meta); };
+  const tag = (day, title, re) => { const e = find(day, title); return !!e && re.test(e.meta); };
   console.log(`  ${w._range} — ${w._meta}`);
-  ok(w._range === 'Nov 2 – 8, 2026', 'opens on the current week');
+  ok(w._range === 'Nov 16 – 22, 2026', 'opens on the current week');
   ok($('section.day.is-today') && $('section.day.is-today').dataset.day === todayIso, 'today column highlighted');
   ok($('#week-wrap .nowline'), 'now line drawn in today\'s column');
-  ok(find(w.Fri, "Devils' Crest").past, 'releases before now are dimmed');
-  ok(!find(w.Fri, 'A Certain Dark Item').past, 'releases after now are not dimmed');
-  ok(!$('#nextup').hidden && text($('#nextup .nu-title')) === 'A Certain Dark Item', 'Next up strip leads with the next release');
-  ok(has(w.Fri, "Devils' Crest", '7:00 AM') && find(w.Fri, "Devils' Crest").meta.includes('Ep 1–2'), "Devils' Crest Fri Nov 6, 7:00 AM, Ep 1–2");
-  ok(find(w.Fri, "Devils' Crest").meta.includes('Premiere'), "Devils' Crest tagged Premiere");
-  ok(!has(w.Thu, "Devils' Crest"), "Devils' Crest NOT on Thursday");
-  ok(!anywhere(w, 'Demons'), 'old title "Demons\' Crest" gone');
-  ok(!anywhere(w, 'Genso Suikoden'), 'Genso Suikoden removed (YouTube)');
-  ok(has(w.Tue, 'Battle Spirits', '9:30 AM'), 'Battle Spirits Tue 9:30 AM (EST)');
-  ok(has(w.Thu, 'The Ramparts of Ice Season 2', '10:30 AM'), 'Ramparts S2 Thu 10:30 AM');
-  ok(has(w.Fri, 'Tokyo Revengers', '12:00 PM'), 'Tokyo Revengers Fri 12:00 PM');
-  ok(has(w.Sat, 'Marronnier', '10:00 AM'), 'Marronnier Sat 10:00 AM (follows JST across DST)');
-  ok(has(w.Sat, 'Dreamland', '1:00 PM'), 'Dreamland Sat 1:00 PM (US-anchored)');
-  ok(has(w.Sun, 'Blue Box Season 2', '3:00 AM'), 'Blue Box Sun 3:00 AM');
-  ok(has(w.Sun, 'Yozakura', '3:30 AM'), 'Yozakura Sun 3:30 AM');
-  ok(!has(w.Mon, 'Psyren'), 'Psyren not on Mon Nov 2 (recap week)');
-  ok(!anywhere(w, 'Mao'), 'Mao no longer projecting (ended Sep 26)');
-  ok(!anywhere(w, 'Link Click'), 'Link Click S3 Part 1 ended');
-  ok(has(w.Fri, 'STEEL BALL RUN', '3:00 AM') && find(w.Fri, 'STEEL BALL RUN').meta.includes('Ep 7'), 'SBR Fri 3:00 AM, Ep 7');
-  ok(has(w.Sun, 'TANK CHAIR', '9:30 AM'), 'TANK CHAIR Sun 9:30 AM');
-  ok(has(w.Thu, 'The Exiled Heavy Knight', '11:30 AM') && find(w.Thu, 'Exiled').meta.includes('Ep 19'), 'Exiled Heavy Knight Thu 11:30 AM, Ep 19');
-  ok(has(w.Fri, 'Sorry About My Little Brothers', '11:30 AM') && find(w.Fri, 'Sorry About').meta.includes('Ep 18'), 'Sorry About My Little Brothers Ep 18 (after the Sep 25 break)');
-  ok(has(w.Tue, 'Red River', '12:40 PM') && find(w.Tue, 'Red River').meta.includes('Ep 18'), 'Red River Tue Ep 18');
-  ok(has(w.Tue, 'Bass X Machina', '3:00 AM') && find(w.Tue, 'Bass X').meta.includes('All 6 episodes'), 'Bass X Machina batch drop Tue 3:00 AM');
-  ok(has(w.Fri, 'Cardfight', 'Time TBA'), 'Cardfight!! Vanguard listed as Time TBA');
-  ok(has(w.Sat, 'Case Closed', '6:30 AM') && !/Ep \d/.test(find(w.Sat, 'Case Closed').meta), 'Case Closed carryover, unnumbered');
+  ok(find(w.Thu, 'FX Fighter Kurumi-chan').past, 'releases before now are dimmed');
+  ok(!find(w.Thu, 'The Ramparts of Ice Season 2').past, 'releases after now are not dimmed');
+  ok(!$('#nextup').hidden && text($('#nextup .nu-title')) === 'The Ramparts of Ice Season 2', 'Next up strip leads with the next release');
+  // Nov 19 sweep
+  ok(has(w.Mon, 'Psyren', '9:30 AM') && ep(w.Mon, 'Psyren', 6), 'Psyren Mon 9:30 AM, Ep 6 (10:30 AM EDT reference restored)');
+  ok(has(w.Mon, 'Reborn as a Goblin', '8:00 AM') && ep(w.Mon, 'Reborn as a Goblin', 7), 'Goblin Mon Ep 7 (two-episode premiere, Nov 9 off)');
+  ok(has(w.Tue, 'Suikoden: The Anime', '9:30 AM') && ep(w.Tue, 'Suikoden', 7), 'Suikoden: The Anime Tue 9:30 AM, Ep 7');
+  ok(has(w.Tue, 'Super Psychic Policeman Chojo', '9:30 AM'), 'Chojo Tue 9:30 AM (was 9:45)');
+  ok(has(w.Tue, 'Red River', '1:35 PM') && ep(w.Tue, 'Red River', 20), 'Red River Tue 1:35 PM, Ep 20 (new slot from Nov 17)');
+  ok(has(w.Sat, 'Case Closed', '7:30 AM') && !/Ep \d/.test(find(w.Sat, 'Case Closed').meta), 'Case Closed Sat 7:30 AM (US clock), unnumbered carryover');
+  ok(has(w.Sat, 'Star Detective Precure!', '8:30 PM'), 'Star Detective Precure! Sat 8:30 PM (US clock)');
+  ok(ep(w.Sat, 'A Tale of the Secret Saint', 9), 'Secret Saint Sat Ep 9 (two-episode premiere)');
+  ok(ep(w.Sat, 'Magical Explorer', 9), 'Magical Explorer Sat Ep 9');
+  ok(ep(w.Sat, 'Looking For a Zombie', 7), 'Zombie Sat Ep 7 (Nov 7 off)');
+  ok(has(w.Sun, 'Blue Box Season 2', '3:00 AM') && ep(w.Sun, 'Blue Box', 7), 'Blue Box Sun 3:00 AM, Ep 7 (Nov 1 off)');
+  ok(has(w.Sat, 'Paw & Palaces'), 'Paw & Palaces stays on Saturday (observed day)');
+  ok(has(w.Fri, 'Cardfight', 'Time TBA') && tag(w.Fri, 'Cardfight', /Finale/), 'Cardfight!! Vanguard arc ends Fri Nov 20, time TBA');
   ok(text($('#unscheduled')).includes('Spirit Circle'), 'Spirit Circle listed as announced without a date');
 
   // ---- other weeks
   section('other weeks');
   await click('#wk-next'); w = week();
   console.log(`  ${w._range} — ${w._meta}`);
-  ok(has(w.Mon, 'Psyren', '10:30 AM') && find(w.Mon, 'Psyren').meta.includes('Ep 5'), 'Psyren back Mon Nov 9, 10:30 AM, Ep 5');
-  ok(has(w.Fri, "Devils' Crest", '7:00 AM') && find(w.Fri, "Devils' Crest").meta.includes('Ep 3'), "Devils' Crest Fri Nov 13, Ep 3");
+  ok(w._range === 'Nov 23 – 29, 2026', 'next week');
+  ok(!has(w.Mon, 'Psyren'), 'Psyren off Mon Nov 23 (episode 7 delayed a week)');
+  ok(has(w.Tue, 'Suikoden: The Anime', '9:30 AM') && ep(w.Tue, 'Suikoden', 8), 'Suikoden Tue Nov 24, Ep 8');
   ok($('#nextup').hidden, 'Next up strip only on the current week');
-  await click('#wk-today'); await click('#wk-prev'); w = week();
+  await click('#wk-next'); w = week();
+  ok(has(w.Mon, 'Psyren', '9:30 AM') && ep(w.Mon, 'Psyren', 7), 'Psyren Ep 7 on Mon Nov 30');
+  await go('#schedule:2026-11-09'); w = week();
+  console.log(`  ${w._range} — ${w._meta}`);
+  ok(has(w.Tue, 'Suikoden: The Anime', '9:30 AM') && find(w.Tue, 'Suikoden').meta.includes('Ep 1–6') && tag(w.Tue, 'Suikoden', /Premiere/), 'Suikoden Tue Nov 10: episodes 1–6 at once, tagged Premiere');
+  ok(!has(w.Mon, 'Reborn as a Goblin'), 'Goblin off Mon Nov 9');
+  ok(has(w.Mon, 'Psyren', '9:30 AM') && ep(w.Mon, 'Psyren', 5), 'Psyren back Mon Nov 9, 9:30 AM, Ep 5');
+  ok(has(w.Fri, "Devils' Crest", '7:00 AM') && ep(w.Fri, "Devils' Crest", 3), "Devils' Crest Fri Nov 13, Ep 3");
+
+  // Nov 6 sweep, held in place
+  await go('#schedule:2026-11-02'); w = week();
+  console.log(`  ${w._range} — ${w._meta}`);
+  ok(has(w.Fri, "Devils' Crest", '7:00 AM') && find(w.Fri, "Devils' Crest").meta.includes('Ep 1–2'), "Devils' Crest Fri Nov 6, 7:00 AM, Ep 1–2");
+  ok(tag(w.Fri, "Devils' Crest", /Premiere/), "Devils' Crest tagged Premiere");
+  ok(!has(w.Thu, "Devils' Crest"), "Devils' Crest NOT on Thursday");
+  ok(!anywhere(w, 'Demons'), 'old title "Demons\' Crest" gone');
+  ok(!anywhere(w, 'Suikoden'), 'no Suikoden before its Crunchyroll pickup on Nov 10');
+  ok(has(w.Tue, 'Battle Spirits', '9:30 AM'), 'Battle Spirits Tue 9:30 AM (EST)');
+  ok(has(w.Thu, 'The Ramparts of Ice Season 2', '10:30 AM'), 'Ramparts S2 Thu 10:30 AM');
+  ok(has(w.Fri, 'Tokyo Revengers', '12:00 PM'), 'Tokyo Revengers Fri 12:00 PM');
+  ok(has(w.Sat, 'Marronnier', '10:00 AM'), 'Marronnier Sat 10:00 AM (follows JST across DST)');
+  ok(has(w.Sat, 'Dreamland', '1:00 PM'), 'Dreamland Sat 1:00 PM (US-anchored)');
+  ok(has(w.Sun, 'Blue Box Season 2', '3:00 AM') && ep(w.Sun, 'Blue Box', 5), 'Blue Box Sun Nov 8, 3:00 AM, Ep 5');
+  ok(has(w.Sun, 'Yozakura', '3:30 AM'), 'Yozakura Sun 3:30 AM');
+  ok(!has(w.Mon, 'Psyren'), 'Psyren not on Mon Nov 2 (recap week)');
+  ok(!has(w.Sat, 'Looking For a Zombie'), 'Zombie off Sat Nov 7');
+  ok(!anywhere(w, 'Mao'), 'Mao no longer projecting (ended Sep 26)');
+  ok(!anywhere(w, 'Link Click'), 'Link Click S3 Part 1 ended');
+  ok(has(w.Fri, 'STEEL BALL RUN', '3:00 AM') && ep(w.Fri, 'STEEL BALL RUN', 7), 'SBR Fri 3:00 AM, Ep 7');
+  ok(has(w.Sun, 'TANK CHAIR', '9:30 AM'), 'TANK CHAIR Sun 9:30 AM');
+  ok(has(w.Thu, 'The Exiled Heavy Knight', '11:30 AM') && ep(w.Thu, 'Exiled', 19), 'Exiled Heavy Knight Thu 11:30 AM, Ep 19');
+  ok(has(w.Fri, 'Sorry About My Little Brothers', '11:30 AM') && ep(w.Fri, 'Sorry About', 18), 'Sorry About My Little Brothers Ep 18 (after the Sep 25 break)');
+  // Red River actually landed 12:40 PM on Nov 3; the row holds the Nov 17 slot (see its caveat).
+  ok(has(w.Tue, 'Red River', '1:35 PM') && ep(w.Tue, 'Red River', 18), 'Red River Tue Ep 18');
+  ok(has(w.Tue, 'Bass X Machina', '3:00 AM') && find(w.Tue, 'Bass X').meta.includes('All 6 episodes'), 'Bass X Machina batch drop Tue 3:00 AM');
+  ok(has(w.Fri, 'Cardfight', 'Time TBA'), 'Cardfight!! Vanguard listed as Time TBA');
+  ok(has(w.Sat, 'Case Closed', '7:30 AM'), 'Case Closed Sat Nov 7, 7:30 AM after DST');
+
+  await go('#schedule:2026-10-26'); w = week();
   console.log(`  ${w._range} — ${w._meta}`);
   ok(has(w.Sat, 'Marronnier', '11:00 AM'), 'Marronnier Sat Oct 31 at 11:00 AM (EDT)');
   ok(has(w.Sun, 'Overgeared', '9:30 AM'), 'Overgeared Sun Nov 1 9:30 AM (first EST day)');
+  ok(!has(w.Sun, 'Blue Box Season 2'), 'Blue Box off Sun Nov 1');
+  ok(has(w.Sat, 'Case Closed', '7:30 AM') && has(w.Sat, 'Star Detective Precure!', '8:30 PM'), 'Case Closed and Precure at the same clock times before DST');
+
+  await go('#schedule:2026-12-14'); w = week();
+  console.log(`  ${w._range} — ${w._meta}`);
+  ok(!$('#sweep').hidden && text($('#sweep')).includes('Winter 2027'), 'sweep reminder in the week of Dec 14');
+  ok(ep(w.Fri, 'TOUGEN ANKI', 12) && tag(w.Fri, 'TOUGEN ANKI', /finale/i), 'TOUGEN ANKI ends Fri Dec 18 at episode 12');
+  ok(ep(w.Sat, 'A Tale of the Secret Saint', 13) && tag(w.Sat, 'Secret Saint', /finale/i), 'Secret Saint ends Sat Dec 19, Ep 13');
+  ok(ep(w.Sat, 'Magical Explorer', 13) && tag(w.Sat, 'Magical Explorer', /finale/i), 'Magical Explorer ends Sat Dec 19, Ep 13');
+  ok(has(w.Tue, 'Red River', '1:35 PM') && tag(w.Tue, 'Red River', /Finale/), 'Red River finale Tue Dec 15');
+
   await go('#schedule:2026-12-21'); w = week();
   console.log(`  ${w._range} — ${w._meta}`);
   ok(w._range === 'Dec 21 – 27, 2026', 'hash route #schedule:YYYY-MM-DD opens that week');
   ok(has(w.Wed, 'Twisted-Wonderland', '9:45 AM'), 'Savanaclaw Wed Dec 23 9:45 AM');
   ok(!has(w.Sat, 'Dreamland'), 'Dreamland finished by Dec 26');
-  await click('#wk-next');
+  ok(ep(w.Mon, 'Reborn as a Goblin', 12) && tag(w.Mon, 'Reborn as a Goblin', /finale/i), 'Goblin ends Mon Dec 21');
+  ok(ep(w.Tue, 'Suikoden', 12) && !tag(w.Tue, 'Suikoden', /finale/i), 'Suikoden Ep 12 Tue Dec 22, not a finale (23 episodes)');
+  ok(ep(w.Thu, 'The Ramparts of Ice Season 2', 13) && tag(w.Thu, 'Ramparts', /finale/i), 'Ramparts S2 ends Thu Dec 24, Ep 13');
+  ok(ep(w.Fri, 'Tokyo Revengers', 13) && tag(w.Fri, 'Tokyo Revengers', /finale/i), 'Tokyo Revengers ends Fri Dec 25, Ep 13');
+  ok(ep(w.Sat, 'Looking For a Zombie', 12) && tag(w.Sat, 'Zombie', /finale/i), 'Zombie ends Sat Dec 26');
+  ok(ep(w.Sun, 'Blue Box Season 2', 12) && tag(w.Sun, 'Blue Box', /finale/i), 'Blue Box S2 ends Sun Dec 27');
+  await click('#wk-next'); w = week();
   ok(text($('#wk-range')) === 'Dec 28 – Jan 3, 2027' && $('#wk-next').disabled, 'last page is the week holding Dec 31');
-  await go('#schedule:2026-12-14');
-  ok(!$('#sweep').hidden && text($('#sweep')).includes('Winter 2027'), 'sweep reminder in the week of Dec 14');
+  ok(!has(w.Tue, 'Suikoden'), 'Suikoden off Tue Dec 29 (year-end break; episode 13 TBA)');
+  ok(ep(w.Wed, 'The Detective Is Already Dead', 13) && tag(w.Wed, 'Detective Is Already Dead', /finale/i), 'Detective Is Already Dead S2 ends Wed Dec 30');
   await go('#schedule'); await click('#wk-today');
 
   // ---- filters and search
@@ -192,8 +241,8 @@ const anywhere = (w, title) => Object.keys(w).some(k => Array.isArray(w[k]) && f
   ok(!$('#upcoming').hidden && $('#schedule').hidden, 'Up next view shown, schedule hidden');
   const heads = $$('#agenda .agenda-h').map(text);
   ok(heads[0] === 'Out in the last 24 hours' && heads[1].startsWith('Today'), `agenda starts with recent, then Today (${heads.slice(0, 2).join(' / ')})`);
-  ok(text($$('#agenda .agenda-day')[1].querySelector('.ag-title')) === 'A Certain Dark Item', 'first upcoming release is A Certain Dark Item');
-  ok(text($('#agenda .agenda-day')).includes("Devils' Crest"), "Devils' Crest under Out in the last 24 hours");
+  ok(text($$('#agenda .agenda-day')[1].querySelector('.ag-title')) === 'The Ramparts of Ice Season 2', 'first upcoming release is Ramparts S2');
+  ok(text($('#agenda .agenda-day')).includes('FX Fighter Kurumi-chan'), 'FX Fighter Kurumi-chan under Out in the last 24 hours');
   ok(text($$('#agenda .agenda-day')[1].querySelector('.ag-cd')) === 'in 30 min', 'countdown reads in 30 min');
 
   // ---- show sheet
@@ -203,7 +252,7 @@ const anywhere = (w, title) => Object.keys(w).some(k => Array.isArray(w[k]) && f
   ok(dlg.open || dlg.hasAttribute('open'), 'deep link #show:id opens the sheet');
   ok(text($('#sh-title')) === "Devils' Crest", 'sheet title');
   const relRows = $$('#detail .rel li').map(text);
-  ok(relRows[0] && relRows[0].startsWith('Fri Nov 13, 7:00 AM') && relRows[0].endsWith('Ep 3'), `next release row (${relRows[0]})`);
+  ok(relRows[0] && relRows[0].startsWith('Fri Nov 20, 7:00 AM') && relRows[0].endsWith('Ep 4'), `next release row (${relRows[0]})`);
   ok($('#detail a.btn-primary') && /amazon\.com\/s\?k=Devils/.test($('#detail a.btn-primary').href), 'Watch on Prime Video links to a search');
   ok(/Prime exclusive/.test(text($('.sh-status'))), 'note shown under the title');
   ok(!/ · /.test(text($('#detail .facts'))), 'facts list has no middle-dot strings');
@@ -218,8 +267,8 @@ const anywhere = (w, title) => Object.keys(w).some(k => Array.isArray(w[k]) && f
   ok(ics.text.startsWith('BEGIN:VCALENDAR\r\nVERSION:2.0\r\n') && ics.text.endsWith('END:VCALENDAR\r\n'), 'VCALENDAR wrapper with CRLF');
   ok(!/[^\r]\n/.test(ics.text), 'every line ends in CRLF');
   ok(lines.every(l => bytes(l) <= 75), 'no physical line longer than 75 octets');
-  ok(ics.count === 10, `10 upcoming releases exported (got ${ics.count})`);
-  ok(ics.text.includes('DTSTART:20261113T120000Z') && ics.text.includes('SUMMARY:Devils\' Crest (Ep 3)'), 'Nov 13 7:00 AM EST = 12:00Z, Ep 3');
+  ok(ics.count === 9, `9 upcoming releases exported (got ${ics.count})`);
+  ok(ics.text.includes('DTSTART:20261120T120000Z') && ics.text.includes('SUMMARY:Devils\' Crest (Ep 4)'), 'Nov 20 7:00 AM EST = 12:00Z, Ep 4');
   const uids = ics.text.match(/^UID:.*$/gm);
   ok(uids.length === new Set(uids).size, 'UIDs are unique');
   ok(/^DTSTAMP:\d{8}T\d{6}Z$/m.test(ics.text) && /PRODID:/.test(ics.text), 'DTSTAMP and PRODID present');

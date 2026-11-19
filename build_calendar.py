@@ -107,7 +107,8 @@ REQUIRED_COLS = ["Title", "Platform", "Schedule", "Time (ET)", "US-anchored", "T
 # Optional — absent in older workbooks, so missing is not an error.
 #   Skip dates     ISO dates a weekly show does NOT air (recaps, breaks).
 #   Extra dates    ISO dates it airs OUTSIDE its weekly slot (an early premiere).
-#   Double dates   ISO dates two episodes release together (two-episode premieres).
+#   Double dates   ISO dates several episodes release together: a bare date is two
+#                  (two-episode premiere); "2026-11-10:6" is six (a mid-season backlog drop).
 #   First episode  episode number of the row's first release (default 1).
 #   Carryover      yes = the show began in an earlier season (was Platform "Continuing").
 #   Also on        other supported platforms carrying the same release, comma-separated.
@@ -181,6 +182,25 @@ def parse_dates(v):
 
 
 parse_skips = parse_dates     # older name, kept for scripts that import it
+
+
+def parse_multi(v):
+    """Double dates -> {iso: episodes}. '2026-10-03, 2026-11-10:6' -> {'2026-10-03': 2, '2026-11-10': 6}.
+
+    A bare date carries two episodes (a two-episode premiere). 'date:N' carries N — for a
+    platform that posts the backlog at once when it picks a show up mid-season (Suikoden:
+    The Anime, episodes 1–6 on Crunchyroll Nov 10). Unreadable parts are dropped."""
+    if isinstance(v, (datetime.date, datetime.datetime)):
+        return {parse_iso(v).isoformat(): 2}
+    out = {}
+    for part in str(v or "").replace(";", ",").split(","):
+        part = part.strip()
+        m = re.fullmatch(r"(\d{4}-\d{2}-\d{2})\s*[:×x]\s*(\d+)", part)
+        iso, k = (m.group(1), int(m.group(2))) if m else (part, 2)
+        d = parse_iso(iso)
+        if d and k >= 2:
+            out[d.isoformat()] = k
+    return out
 
 
 def parse_time(v):
@@ -292,7 +312,7 @@ def releases(r, year, win_start=None, horizon=None):
                  "flags": flags}]
 
     skips = set(parse_dates(r.get("Skip dates")))
-    doubles = set(parse_dates(r.get("Double dates")))
+    doubles = parse_multi(r.get("Double dates"))
     extras = sorted(parse_dates(r.get("Extra dates")))
     numbered = is_numbered(r)
     first_no = first_episode(r) or 1
@@ -335,7 +355,7 @@ def releases(r, year, win_start=None, horizon=None):
             break
         if not end and total is not None and n >= total:
             break
-        k = 2 if d.isoformat() in doubles else 1
+        k = doubles.get(d.isoformat(), 1)
         a = first_no + n
         flags = F_EXTRA if d.isoformat() in extras else 0
         out.append({"day": d, "utc": instant(d, hm, us),
@@ -431,7 +451,7 @@ def validate(rows, year):
                     errors.append(f'row {i} "{t}": {col} must be a positive whole number')
         for col in ("Skip dates", "Extra dates", "Double dates"):
             raw = str(r.get(col) or "").strip()
-            if raw and not parse_dates(raw):
+            if raw and not (parse_multi(raw) if col == "Double dates" else parse_dates(raw)):
                 errors.append(f'row {i} "{t}": {col} "{raw}" could not be read')
         for iso in parse_dates(r.get("Skip dates")):
             d = parse_iso(iso)
@@ -448,7 +468,7 @@ def validate(rows, year):
                                 f'({w["start"].isoformat()}) — Extra dates is for off-cadence '
                                 f'airings such as an early premiere')
         rel_days = {x["day"].isoformat() for x in releases(r, year)}
-        for iso in parse_dates(r.get("Double dates")):
+        for iso in parse_multi(r.get("Double dates")):
             if iso not in rel_days:
                 warnings.append(f'row {i} "{t}": double date {iso} is not one of the show\'s '
                                 f'release days, so it changes nothing')

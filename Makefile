@@ -1,6 +1,6 @@
 # Common tasks. `make` builds; `make test` runs everything CI runs.
 PY ?= python3
-SWEEP_DATE ?= 2026-11-06
+SWEEP_DATE ?= 2026-11-19
 
 .PHONY: build check test unit verify install clean covers
 

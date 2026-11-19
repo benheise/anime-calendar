@@ -162,9 +162,16 @@ anything else is a schedule change (*Red River*, Nov 17).
 ### Only an observed airing is really reliable
 
 Paw & Palaces aired at **7:00 AM ET** — hours before anything predicted, and AnimeSchedule
-has no entry for it at all. Every aggregator figure is an estimate until a show airs. When
-Ben reports a time, that is the single best datum available; set `Time confirmed = yes`
+had no entry for it at the time. Every aggregator figure is an estimate until a show airs.
+When Ben reports a time, that is the single best datum available; set `Time confirmed = yes`
 and stop chasing it.
+
+But **one observation is one release, not a weekly slot.** That Oct 10 sighting was
+episodes 1–4 posted together on a Saturday; the weekly slot turned out to be **Wednesday,
+9:30 AM EST** (Ben, Nov 18), which AnimeSchedule's aired entries had shown since Oct 14.
+The row sat on Saturdays for six weeks because the premiere drop was copied as the cadence.
+When a premiere carries several episodes, or lands on a different day from the listings,
+check the second week before setting `Schedule` from it.
 
 ### A schedule-grid entry is not proof a show aired
 
@@ -363,8 +370,8 @@ break this week".
 He watches these on the actual platforms. He has been right **every single time** —
 Victoria of Many Faces, Chainsmoker Cat, Tomb Raider King, Ramparts of Ice, Overgeared,
 HIDIVE's lineup, Exiled Heavy Knight's time, Slime, Magic Repo Man's date, and its time,
-A Certain Dark Item's time, Paw & Palaces, Broken Saintess's platform, and Devils' Crest's
-premiere day (Nov 6) and its title. When he says "some shows are still on the wrong day", the Nov 6
+A Certain Dark Item's time, Paw & Palaces (its premiere time, then its weekly Wednesday slot),
+Broken Saintess's platform, and Devils' Crest's premiere day (Nov 6) and its title. When he says "some shows are still on the wrong day", the Nov 6
 sweep found two: Devils' Crest and Genso Suikoden.
 
 When his observation conflicts with a source, **the source is wrong.** Fix the data first,

@@ -41,10 +41,10 @@ jobs:
       # verify.js asserts placements as of the sweep date, so build and check
       # against that pinned date rather than the day CI happens to run.
       - name: Build with a pinned date
-        run: python build_calendar.py --today 2026-11-06 --out "$RUNNER_TEMP/calendar.html"
+        run: python build_calendar.py --today 2026-11-19 --out "$RUNNER_TEMP/calendar.html"
 
       - name: Verify the page in jsdom
-        run: node verify.js "$RUNNER_TEMP/calendar.html" 2026-11-06
+        run: node verify.js "$RUNNER_TEMP/calendar.html" 2026-11-19
 
       - name: Committed page is up to date with the workbook and template
         run: |

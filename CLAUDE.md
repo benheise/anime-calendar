@@ -141,6 +141,24 @@ The per-show page lists raw and subs separately, so you can see which you are re
 Use the seasonal list to find candidates and spot gaps; confirm every time you actually
 write from the per-show page.
 
+### An aired entry beats a projection, on AnimeSchedule too
+
+AnimeSchedule mixes two kinds of number: entries for episodes that have **aired** (their
+status class is `aired`, and they get corrected) and **projections** — the per-show "next
+episode" line and every `unaired` timetable entry. Write from aired entries.
+
+The Nov 6 sweep read projections in three places and got all three wrong:
+- *Psyren* was moved 10:30 → 11:30 AM EDT reference off the Nov 2 entry. Nov 2 was the
+  recap week, and that one entry was never corrected; the aired entries either side
+  (Oct 19/26 at 10:30 EDT, Nov 9/16 at 9:30 EST) said 10:30 all along. Reverted Nov 19.
+- *Case Closed* and *Star Detective Precure!* were "confirmed" at 6:30 AM / 7:30 PM EST
+  from projections. Their aired subs after DST stayed at 7:30 AM / 8:30 PM (see DST, §7).
+
+Method that worked on Nov 19: fetch week timetables on **both sides** of a change
+(weeks 43–49), keep only `aired` SUB entries, and diff those. A time that moved by exactly
+an hour across Nov 1 means the row follows Japan; one that held still means a US clock;
+anything else is a schedule change (*Red River*, Nov 17).
+
 ### Only an observed airing is really reliable
 
 Paw & Palaces aired at **7:00 AM ET** — hours before anything predicted, and AnimeSchedule
@@ -183,7 +201,8 @@ titles that would previously have gone to Crunchyroll. (As of mid-October it was
 to have payment-processor trouble; if it folds, its exclusives may move somewhere
 supported, so re-check them.)
 
-**Unsupported services seen so far:** YouTube (Duel Masters LOST, *Genso Suikoden*,
+**Unsupported services seen so far:** YouTube (Duel Masters LOST, *Genso Suikoden* until
+Nov 10 — see below,
 *Welsh & Shedar*, *Ghost Meets Gal!*), OceanVeil (fall titles incl. *Even the Student
 Council Has Its Holes!*, *Kamui: He's Behind You*, *The Lonely Snow Widow and the Cursed
 Ring*, *Now That I Can Control Reality With a Mouse Cursor*), iQIYI (donghua), and
@@ -198,6 +217,16 @@ and trailers, and an Italian site said "in arrivo su Crunchyroll". It streams fr
 Konami's own YouTube channel (ANN, Oct 3) plus Ani-One Asia. Crunchyroll News reports on
 the whole industry, including other services' shows. A platform is confirmed only by its
 lineup post, a title page, or a licence announcement.
+
+### A removal is not permanent either
+
+*Genso Suikoden* was removed in October as a YouTube / Ani-One Asia title, which was
+correct at the time. On **Nov 10** Crunchyroll picked it up as *Suikoden: The Anime*,
+posting episodes 1–6 at once and then going weekly (Tuesdays 9:30 AM ET). Nothing on the
+calendar pointed back at it, so it only surfaced because the AnimeSchedule timetable diff
+listed a Crunchyroll SUB entry with no row. Each sweep, re-check the titles removed for
+being on an unsupported service — the OceanVeil exclusives especially (§2, payment trouble).
+A mid-season pickup's backlog goes in `Double dates` as `date:N` (§7).
 
 ### The TBA rule cuts both ways — don't invent a platform either
 
@@ -240,7 +269,7 @@ it was missed through two subsequent sweeps because nothing ever read HIDIVE's o
 
 - **Crunchyroll** — `crunchyroll.com/news/seasonal-lineup/` (JS-rendered; use a reprint).
   News RSS *is* directly fetchable: `cr-news-api-service.prd.crunchyrollsvc.com/v1/en-US/rss`
-  (~4-day window; works via WebFetch, **not** from the shell — the proxy blocks that host)
+  (~4-day window; via WebFetch, and from the shell since Nov 19)
 - **HIDIVE** — `news.hidive.com` (JS-rendered SPA, no RSS; use comicbook.com or Anime UK News)
 - **Netflix** — whats-on-netflix.com, ANN
 - **Disney+ / Hulu** — whatsondisneyplus.com (carries titles CR does not)
@@ -306,6 +335,22 @@ on the finale date is a finale signal, not proof the show continues.
 *Link Click S3* Part 1 ended Oct 23, a week before the 12-episode estimate. When the dub
 keeps running on the same platform, the sub's ending is easy to miss.
 
+### AniList's airing schedule shows breaks and doubled premieres
+
+AniList's GraphQL API (`Media.airingSchedule`, one dated node per episode) is the cheapest
+cross-check for the two things `releases()` cannot guess. On Nov 19 it showed breaks the
+calendar was projecting through (*Blue Box S2* Nov 1, *#I'm Looking For a Zombie* Nov 7,
+*Goblin* Nov 9), two-episode premieres (*Secret Saint*, *Goblin*, and *Magical Explorer*'s
+Sep 26 Japanese premiere) and counts (*TOUGEN ANKI* is 12, not the reported 24). When
+AnimeSchedule's episode numbers drift from the calendar's by one, a skip or a double is
+almost always the reason.
+
+Its limits: the `episodes` headline can disagree with its own schedule (*Romelia*: 12 vs a
+schedule running to episode 24), the first page of nodes can be years old for long
+runners (*Case Closed*), and it is an aggregator, so `Count confirmed` stays blank unless
+a first-party or Wikipedia source agrees. It needs a User-Agent and allows ~30 requests a
+minute; batch with `id_in`.
+
 ### Recap weeks
 *Psyren* aired a recap instead of episode 5 on Nov 2. A recap is a `Skip date`, since it is
 not in the episode count. AnimeSchedule's per-show page flags these as "Delayed" / "On
@@ -340,7 +385,7 @@ stream track).
 | `Schedule` | `Wed · Jul 8` dated · `Saturdays` weekly · `Fall 2026` undated · `Released Jun 19` past one-off · `All at once · Oct 20` scheduled batch drop (always tagged "All episodes", count or not) |
 | `Skip dates` | ISO dates the show does NOT air. Each pushes the finale a week later. |
 | `Extra dates` | ISO dates it airs OUTSIDE its weekly slot (early premiere). Each comes out of the run's total. |
-| `Double dates` | ISO release dates that carry two episodes (two-episode premiere). Each counts 2 toward `Episodes`, so the run ends a week sooner. Replaces the old "Two-episode premiere" note. |
+| `Double dates` | ISO release dates that carry two episodes (two-episode premiere). Each counts 2 toward `Episodes`, so the run ends a week sooner. Replaces the old "Two-episode premiere" note. `date:N` carries N episodes, for a platform that posts a backlog when it picks a show up mid-season (`2026-11-10:6`, Suikoden). |
 | `First episode` | Starting episode number. Needed only for the second half of a split season (`Part 2`, `Cour 2`, `final part`, `Continuing cour` in `Type / Studio`), whose numbers are otherwise hidden because they may continue the first half's count. |
 | `Carryover` | `yes` for a series running in from an earlier season. Carryover rows show no episode numbers and no Premiere tag. |
 | `Also on` | A second supported platform carrying the same show (comma list). The platform filter matches it too. |
@@ -414,9 +459,13 @@ the text, and measure the 98th-percentile luminance under each rect.
 an hour from every row **not** marked `US-anchored`. Two rules follow:
 
 1. **Decide the anchor per row, by what the release follows.**
-   - Follows the Japanese broadcast → leave unanchored, it steps back an hour. This is every
-     Crunchyroll and HIDIVE simulcast, and Netflix weeklies that drop "right after" the JP
+   - Follows the Japanese broadcast → leave unanchored, it steps back an hour. This is most
+     Crunchyroll and HIDIVE simulcasts, and Netflix weeklies that drop "right after" the JP
      broadcast (Ranma ½).
+   - **But not every Crunchyroll sub follows Japan.** *Case Closed* (7:30 AM) and *Star
+     Detective Precure!* (8:30 PM) held the same wall-clock time across Nov 1 while their
+     broadcasts moved an hour earlier, so both are `US-anchored`. Settle each row from
+     aired times on both sides of DST, never from the platform.
    - Pinned to a US clock → `US-anchored = yes`. Netflix all-at-once originals (midnight PT).
    - ~~Prime titles announced at a Pacific time (Marronnier: "8:00 AM PT")~~ — **wrong,
      withdrawn Nov 6.** Prime Video Japan's own press release says Marronnier releases
@@ -544,7 +593,12 @@ back gracefully (system fonts, plain slots).
 
 ## 9. Environment
 
-- Shell network is allowlisted to package registries + GitHub. **WebFetch reaches sites the
-  shell cannot** — including the Crunchyroll RSS feed. Use WebFetch, don't retry with curl.
+- Shell network is allowlisted, and the list changes between sessions. On Nov 19 the shell
+  reached AnimeSchedule (timetables and per-show pages, so diffs can be scripted),
+  AniList's GraphQL API, the Crunchyroll RSS feed, and Wikipedia's API (but 429s after a
+  few calls). Check with one `curl -w '%{http_code}'` before planning around it. When
+  the shell is refused, **WebFetch reaches sites the shell cannot**; don't retry with curl.
+- Send the generic User-Agent `anime-release-calendar/2.0 (+https://github.com/benheise/anime-calendar)`
+  to third-party APIs, never anything personal.
 - Crunchyroll News, HIDIVE News and ANN are JS-rendered or 403 to WebFetch. Go to reprints.
 - Attachments are at `/root/.claude/uploads/<session>/`.

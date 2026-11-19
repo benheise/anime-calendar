@@ -115,7 +115,8 @@ const anywhere = (w, title) => Object.keys(w).some(k => Array.isArray(w[k]) && f
   ok(ep(w.Sat, 'Magical Explorer', 9), 'Magical Explorer Sat Ep 9');
   ok(ep(w.Sat, 'Looking For a Zombie', 7), 'Zombie Sat Ep 7 (Nov 7 off)');
   ok(has(w.Sun, 'Blue Box Season 2', '3:00 AM') && ep(w.Sun, 'Blue Box', 7), 'Blue Box Sun 3:00 AM, Ep 7 (Nov 1 off)');
-  ok(has(w.Sat, 'Paw & Palaces'), 'Paw & Palaces stays on Saturday (observed day)');
+  ok(has(w.Wed, 'Paw & Palaces', '9:30 AM') && ep(w.Wed, 'Paw & Palaces', 10), 'Paw & Palaces Wed 9:30 AM, Ep 10 (Ben, Nov 18)');
+  ok(!has(w.Sat, 'Paw & Palaces'), 'Paw & Palaces no longer on Saturday');
   ok(has(w.Fri, 'Cardfight', 'Time TBA') && tag(w.Fri, 'Cardfight', /Finale/), 'Cardfight!! Vanguard arc ends Fri Nov 20, time TBA');
   ok(text($('#unscheduled')).includes('Spirit Circle'), 'Spirit Circle listed as announced without a date');
 
@@ -171,6 +172,8 @@ const anywhere = (w, title) => Object.keys(w).some(k => Array.isArray(w[k]) && f
   ok(has(w.Sun, 'Overgeared', '9:30 AM'), 'Overgeared Sun Nov 1 9:30 AM (first EST day)');
   ok(!has(w.Sun, 'Blue Box Season 2'), 'Blue Box off Sun Nov 1');
   ok(has(w.Sat, 'Case Closed', '7:30 AM') && has(w.Sat, 'Star Detective Precure!', '8:30 PM'), 'Case Closed and Precure at the same clock times before DST');
+  await go('#schedule:2026-10-05'); w = week();
+  ok(find(w.Sat, 'Paw & Palaces') && find(w.Sat, 'Paw & Palaces').meta.includes('Ep 1–4'), 'Paw & Palaces episodes 1–4 together on Sat Oct 10');
 
   await go('#schedule:2026-12-14'); w = week();
   console.log(`  ${w._range} — ${w._meta}`);
